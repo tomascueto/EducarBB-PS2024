@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Pencil, Trash2 } from "lucide-react"
+import Link  from "next/link"
 
 interface User {
   id: number
@@ -38,7 +39,9 @@ export default function UserList() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <Button>Crear Nuevo Usuario</Button>
+        <Link href="/gestion-usuarios/crear">
+          <Button>Crear Nuevo Usuario</Button>
+        </Link>
       </div>
       <Table>
         <TableHeader>

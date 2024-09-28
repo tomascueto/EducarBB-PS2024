@@ -21,7 +21,7 @@ export function DashboardLayoutComponent({ children }: { children: React.ReactNo
           </Button>
           <span className="font-semibold">User Name</span>
           <div className="ml-8 flex items-center">
-            <Link href="#" className="flex items-center mr-4 hover:bg-accent rounded-md px-2 py-1">
+            <Link href="/home" className="flex items-center mr-4 hover:bg-accent rounded-md px-2 py-1">
               <Home className="h-4 w-4 mr-2" />
               <span>Home</span>
             </Link>
@@ -44,6 +44,11 @@ export function DashboardLayoutComponent({ children }: { children: React.ReactNo
           {isSidebarOpen && (
             <>
               <ScrollArea className="flex-1">
+                <nav className="space-y-2 p-4">
+                  <Link href="/gestion-usuarios" className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-accent">
+                    <span>Gestion de usuarios</span>
+                  </Link>
+                </nav>
                 <nav className="space-y-2 p-4">
                   {['Section 1', 'Section 2', 'Section 3', 'Section 4', 'Section 5'].map((section, index) => (
                     <Link 
