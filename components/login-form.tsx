@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -19,23 +19,22 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-[350px]">
+    <Card className="w-[350px] mx-auto my-10">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Log in</CardTitle>
-        <CardDescription>
-          Enter your username and password to access your account
+        <CardTitle className="text-2xl font-bold text-center text-blue-500">EDUCAR BB</CardTitle>
+        <CardDescription className='text-center font-'>
+          Inicio Sesión
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         <form onSubmit={onSubmit}>
           <div className="grid gap-2">
             <div className="grid gap-1">
-              <Label className="sr-only" htmlFor="username">
-                Username
-              </Label>
+              <Label htmlFor="email" className="text-sm font-medium">
+                  Email
+                </Label>
               <Input
                 id="username"
-                placeholder="Username"
                 type="text"
                 autoCapitalize="none"
                 autoCorrect="off"
@@ -43,12 +42,11 @@ export function LoginForm() {
               />
             </div>
             <div className="grid gap-1">
-              <Label className="sr-only" htmlFor="password">
-                Password
-              </Label>
+              <label htmlFor="password" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Contraseña
+              </label>
               <Input
                 id="password"
-                placeholder="Password"
                 type="password"
                 autoCapitalize="none"
                 autoCorrect="off"
@@ -56,22 +54,11 @@ export function LoginForm() {
               />
             </div>
             <Button>
-              Log in
+              Ingresar
             </Button>
           </div>
         </form>
       </CardContent>
-      <CardFooter>
-        <p className="px-8 text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <a
-            className="underline underline-offset-4 hover:text-primary"
-            href="#"
-          >
-            Sign up
-          </a>
-        </p>
-      </CardFooter>
     </Card>
   )
 }
