@@ -26,13 +26,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <DashboardLayoutComponent>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <DashboardLayoutComponent>{children}</DashboardLayoutComponent>
       </body>
-      </DashboardLayoutComponent>
     </html>
   );
 }
