@@ -29,7 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <DashboardLayoutComponent>{children}</DashboardLayoutComponent>
+        <DashboardLayoutComponent children={children}></DashboardLayoutComponent>
       </body>
     </html>
   );
