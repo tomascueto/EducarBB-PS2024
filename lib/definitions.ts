@@ -1,4 +1,4 @@
-export type User = {
+export type Usuario = {
     nombre: string;
     apellido: string;
     email: string;
