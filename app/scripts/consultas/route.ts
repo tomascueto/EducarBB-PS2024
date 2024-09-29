@@ -5,7 +5,7 @@ export async function GET() {
     
     try {
         const queryText = `
-        SELECT * FROM roles
+        SELECT * FROM usuarios
         `;
         const res = await db.query(queryText);
         const roles = res.rows;
