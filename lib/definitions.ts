@@ -2,7 +2,14 @@ export type Usuario = {
     nombre: string;
     apellido: string;
     email: string;
-    password: string;
+    contraseña: string;
+    fecha_nac: string;
+    rol: string;
 };
+
+export type Rol = {
+    nombre: string;
+};
+
 
 
