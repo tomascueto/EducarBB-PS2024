@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import  Link  from "next/link"
+
 
 export default function UserRegistrationForm() {
   const [formData, setFormData] = useState({
@@ -94,7 +96,10 @@ export default function UserRegistrationForm() {
           </div>
           
           <div className="flex justify-between pt-4">
-            <Button type="button" variant="outline" className="w-1/3">Cancelar</Button>
+            <Link href="/gestion-usuarios" className="w-1/3">
+              <Button type="button" variant="outline" className="w-1/3">Cancelar</Button>
+            </Link>
+            
             <Button type="submit" className="w-1/3">Guardar Usuario</Button>
           </div>
         </form>
