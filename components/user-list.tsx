@@ -61,9 +61,11 @@ export default function UserList() {
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.role}</TableCell>
               <TableCell className="text-right">
+              <Link href={`/gestion-usuarios/${user.id}/modificar`}>
                 <Button variant="ghost" size="icon">
                   <Pencil className="h-4 w-4" />
                 </Button>
+              </Link>
                 <Button variant="ghost" size="icon">
                   <Trash2 className="h-4 w-4" />
                 </Button>

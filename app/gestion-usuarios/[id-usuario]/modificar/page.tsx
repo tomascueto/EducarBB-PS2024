@@ -1,7 +1,7 @@
-import Lista from "@/components/user-list";
+import Formulario from "@/components/user-modification-form";
 
 export default function getSelection(){
     return(
-        <Lista />
+        <Formulario />
     )
 }
