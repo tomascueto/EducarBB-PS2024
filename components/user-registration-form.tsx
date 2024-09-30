@@ -111,8 +111,7 @@ export default function RegistrationForm() {
                   <Input
                     id="fecha_nac"
                     name="fecha_nac"
-                    type="text"
-                    placeholder="DD/MM/AAAA"
+                    type="date"
                     className="w-full"
                     aria-describedby="fechanacimiento-error"
                   />
