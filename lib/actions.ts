@@ -65,16 +65,16 @@ export async function crearUsuario(prevState : UsuarioState, formData : FormData
     const contraseñaHasheada = crypto.hash('sha1',contraseña);
     console.log(contraseñaHasheada);
 
-    try{
+    try {
         await sql`
         INSERT INTO usuarios (dni, nombres, apellido, email, contraseña, fechanacimiento)
-        VALUES (${dni},${nombres}, ${apellido},${email},${contraseñaHasheada},${fecha_nac});
-    `;
-    } catch (error){
+        VALUES (${dni}, ${nombres}, ${apellido}, ${email}, ${contraseñaHasheada}, ${fecha_nac});
+        `;
+    } catch (error) {
+        console.error('Database Error:', error);
         return {
             message: 'Error en la base de datos: error al crear un usuario.',
         };
-
     }
     revalidatePath('/');
     redirect('/');
