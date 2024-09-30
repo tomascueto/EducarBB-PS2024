@@ -1,5 +1,6 @@
 export type Usuario = {
-    nombre: string;
+    dni: string;
+    nombres: string;
     apellido: string;
     email: string;
     contraseña: string;
