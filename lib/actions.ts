@@ -33,12 +33,14 @@ const UsuarioFormSchema = z.object({
 
 export async function crearUsuario(prevState : UsuarioState, formData : FormData){
 
+    console.log(formData);
+
     const validatedFields = UsuarioFormSchema.safeParse({
         dni: formData.get('dni'),
         nombres: formData.get('nombres'),
         apellido: formData.get('apellido'),
         email: formData.get('email'),
-        contraseña: formData.get('contraseña'),
+        contraseña: formData.get('contrasenia'),
         fecha_nac: formData.get('fecha_nac')
     });
 
@@ -59,13 +61,14 @@ export async function crearUsuario(prevState : UsuarioState, formData : FormData
         contraseña,
         fecha_nac
     } = validatedFields.data;
-
+    console.log(contraseña);
     const contraseñaHasheada = crypto.hash('sha1',contraseña);
+    console.log(contraseñaHasheada);
 
     try{
         await sql`
         INSERT INTO usuarios (dni, nombres, apellido, email, contraseña, fechanacimiento)
-        VALUES (${dni},${nombres}, ${apellido},${email},${contraseñaHasheada},${fecha_nac})
+        VALUES (${dni},${nombres}, ${apellido},${email},${contraseñaHasheada},${fecha_nac});
     `;
     } catch (error){
         return {
@@ -76,7 +79,6 @@ export async function crearUsuario(prevState : UsuarioState, formData : FormData
     revalidatePath('/');
     redirect('/');
 }
-
 /*
 export async function updateProduct(id:string, prevState : State,formData : FormData){
    

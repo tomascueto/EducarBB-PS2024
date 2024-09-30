@@ -92,8 +92,8 @@ export default function RegistrationForm() {
             <div className="flex flex-col justify-center">
 
               <div>
-                <Label htmlFor="contraseña" className="block mb-2">Contraseña</Label>
-                <Input id="contraseña" name="contraseña" type="text" className="w-full" aria-describedby="contraseña-error"/>
+                <Label htmlFor="contrasenia" className="block mb-2">Contraseña</Label>
+                <Input id="contrasenia" name="contrasenia" type="text" className="w-full" aria-describedby="contraseña-error"/>
               </div>
 
               <div id="contraseña-error" aria-live="polite" aria-atomic="true">
