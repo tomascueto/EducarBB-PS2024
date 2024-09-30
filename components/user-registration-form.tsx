@@ -91,39 +91,42 @@ export default function RegistrationForm() {
             
             <div className="flex flex-col justify-center">
 
-              <div>
-                <Label htmlFor="contrasenia" className="block mb-2">Contraseña</Label>
-                <Input id="contrasenia" name="contrasenia" type="text" className="w-full" aria-describedby="contraseña-error"/>
-              </div>
-
-              <div id="contraseña-error" aria-live="polite" aria-atomic="true">
-                {state.errors?.contraseña &&
-                  state.errors.contraseña.map((error: string) => (
-                    <p className="mt-2 text-sm text-red-500" key={error}>
-                      {error}
-                    </p>
-                ))}
-              </div>
-
               <div className="space-y-4">
-                <Label htmlFor="birthDate" className="block text-center mb-2">Fecha de nacimiento</Label>
-                <Input
-                  id="fecha_nac"
-                  name="fecha_nac"
-                  type="text"
-                  placeholder="DD/MM/AAAA"
-                  className="w-full"
-                  aria-describedby="fechanacimiento-error"
-                />
-              </div>
+                <div>
+                  <Label htmlFor="contrasenia" className="block mb-2">Contraseña</Label>
+                  <Input id="contrasenia" name="contrasenia" type="text" className="w-full" aria-describedby="contraseña-error"/>
+                </div>
 
-              <div id="fechanacimiento-error" aria-live="polite" aria-atomic="true">
-                {state.errors?.fecha_nac &&
-                  state.errors.fecha_nac.map((error: string) => (
-                    <p className="mt-2 text-sm text-red-500" key={error}>
-                      {error}
-                    </p>
-                ))}
+                <div id="contraseña-error" aria-live="polite" aria-atomic="true">
+                  {state.errors?.contraseña &&
+                    state.errors.contraseña.map((error: string) => (
+                      <p className="mt-2 text-sm text-red-500" key={error}>
+                        {error}
+                      </p>
+                  ))}
+                </div>
+
+                <div>
+                  <Label htmlFor="birthDate" className="block mb-2">Fecha de nacimiento</Label>
+                  <Input
+                    id="fecha_nac"
+                    name="fecha_nac"
+                    type="text"
+                    placeholder="DD/MM/AAAA"
+                    className="w-full"
+                    aria-describedby="fechanacimiento-error"
+                  />
+                </div>
+
+                <div id="fechanacimiento-error" aria-live="polite" aria-atomic="true">
+                  {state.errors?.fecha_nac &&
+                    state.errors.fecha_nac.map((error: string) => (
+                      <p className="mt-2 text-sm text-red-500" key={error}>
+                        {error}
+                      </p>
+                  ))}
+                </div>
+
               </div>
             </div>
           </div>
