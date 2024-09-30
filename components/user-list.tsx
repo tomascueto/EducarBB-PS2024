@@ -4,6 +4,14 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Pencil, Trash2 } from "lucide-react"
 import Link  from "next/link"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 interface User {
   id: number
@@ -21,13 +29,22 @@ export default function UserList() {
   ])
 
   const [searchTerm, setSearchTerm] = useState('')
-
+ 
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.dni.includes(searchTerm) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.role.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  const [deleteUser, setDeleteUser] = useState<User | null>(null)
+
+  const handleDelete = () => {
+    if (deleteUser) {
+      setUsers(users.filter(user => user.id !== deleteUser.id))
+      setDeleteUser(null)
+    }
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -66,9 +83,30 @@ export default function UserList() {
                   <Pencil className="h-4 w-4" />
                 </Button>
               </Link>
-                <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" onClick={() => setDeleteUser(user)}>
                   <Trash2 className="h-4 w-4" />
-                </Button>
+              </Button>
+
+              <Dialog open={!!deleteUser} onOpenChange={() => setDeleteUser(null)}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Confirma que desea eliminar del sistema al usuario:</DialogTitle>
+                    <DialogDescription className='text-center'>
+                      {deleteUser && (
+                        <>
+                          <p>{deleteUser.name}</p>
+                          <p>DNI: {deleteUser.dni}</p>
+                          <p>Rol: {deleteUser.role}</p>
+                        </>
+                      )}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setDeleteUser(null)}>Cancelar</Button>
+                    <Button variant="destructive" onClick={handleDelete}>Eliminar Usuario</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
               </TableCell>
             </TableRow>
           ))}
