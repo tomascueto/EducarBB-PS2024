@@ -22,7 +22,7 @@ const UsuarioFormSchema = z.object({
     email: z.string({
         invalid_type_error: 'Poner un email'
     }).min(1,{message: 'Poner una email'}),
-    password: z.string({
+    contraseña: z.string({
         invalid_type_error: 'Poner una contraseña'
     }).min(1,{message: 'Poner una contraseña'}),
     fecha_nac: z.string({
@@ -38,7 +38,7 @@ export async function crearUsuario(prevState : UsuarioState, formData : FormData
         nombres: formData.get('nombres'),
         apellido: formData.get('apellido'),
         email: formData.get('email'),
-        //password: formData.get('password'),
+        contraseña: formData.get('contraseña'),
         fecha_nac: formData.get('fecha_nac')
     });
 
@@ -56,16 +56,16 @@ export async function crearUsuario(prevState : UsuarioState, formData : FormData
         nombres,
         apellido, 
         email, 
-        //password,
+        contraseña,
         fecha_nac
     } = validatedFields.data;
 
-    //const hashedpassword = crypto.hash('sha1',password)
+    const contraseñaHasheada = crypto.hash('sha1',contraseña);
 
     try{
         await sql`
         INSERT INTO usuarios (dni, nombres, apellido, email, contraseña, fechanacimiento)
-        VALUES (${dni},${nombres}, ${apellido},${email},${fecha_nac})
+        VALUES (${dni},${nombres}, ${apellido},${email},${contraseñaHasheada},${fecha_nac})
     `;
     } catch (error){
         return {
