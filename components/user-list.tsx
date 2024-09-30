@@ -13,7 +13,7 @@ interface User {
   role: string
 }
 
-export default function UserList() {
+export default async function UserList() {
   const [users, setUsers] = useState<User[]>([
     { id: 1, name: 'John Doe', dni: '12345678', email: 'john@example.com', role: 'Admin' },
     { id: 2, name: 'Jane Smith', dni: '87654321', email: 'jane@example.com', role: 'User' },
