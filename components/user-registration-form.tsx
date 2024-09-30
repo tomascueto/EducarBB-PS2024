@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -8,42 +7,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import  Link  from "next/link"
 
+import { useFormState } from 'react-dom';
+import { crearUsuario } from '@/lib/actions';
+import { UsuarioState } from "@/lib/definitions"
 
-export default function UserRegistrationForm() {
-  const [formData, setFormData] = useState({
-    role: "",
-    firstName: "",
-    lastName: "",
-    dni: "",
-    email: "",
-    birthDate: ""
-  })
+export default function RegistrationForm() {
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleRoleChange = (value: string) => {
-    setFormData(prev => ({ ...prev, role: value }))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Form submitted:", formData)
-    // Aquí iría la lógica para enviar los datos al servidor
-  }
+  const initialState : UsuarioState = { message: "", errors: {} };
+  const [state, formAction] = useFormState(crearUsuario, initialState);
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">Complete el siguiente formulario</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form action={formAction} className="space-y-6">
           <div className="w-2/3 mx-auto mb-6">
             <Label htmlFor="role" className="block text-center mb-2">Rol del Usuario</Label>
-            <Select onValueChange={handleRoleChange}>
+            <Select>
               <SelectTrigger id="role" className="w-full">
                 <SelectValue placeholder="Seleccionar rol" />
               </SelectTrigger>
@@ -59,22 +36,56 @@ export default function UserRegistrationForm() {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="firstName" className="block mb-2">Nombres</Label>
-                <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required className="w-full" />
+                <Input id="nombres" name="nombres" className="w-full" aria-describedby="nombres-error"/> 
+              </div>           
+              <div id="nombres-error" aria-live="polite" aria-atomic="true">
+                {state.errors?.nombres &&
+                  state.errors.nombres.map((error: string) => (
+                    <p className="mt-2 text-sm text-red-500" key={error}>
+                      {error}
+                    </p>
+                ))}
               </div>
-              
+
               <div>
-                <Label htmlFor="lastName" className="block mb-2">Apellido</Label>
-                <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} required className="w-full" />
+                <Label htmlFor="apellido" className="block mb-2">Apellido</Label>
+                <Input id="apellido" name="apellido" className="w-full" aria-describedby="apellido-error" />
               </div>
+              <div id="apellido-error" aria-live="polite" aria-atomic="true">
+                {state.errors?.apellido &&
+                  state.errors.apellido.map((error: string) => (
+                    <p className="mt-2 text-sm text-red-500" key={error}>
+                      {error}
+                    </p>
+                ))}
+              </div>
+
               
               <div>
                 <Label htmlFor="dni" className="block mb-2">DNI</Label>
-                <Input id="dni" name="dni" value={formData.dni} onChange={handleInputChange} required className="w-full" />
+                <Input id="dni" name="dni" className="w-full" aria-describedby="dni-error"/>
+              </div>
+              <div id="dni-error" aria-live="polite" aria-atomic="true">
+                {state.errors?.dni &&
+                  state.errors.dni.map((error: string) => (
+                    <p className="mt-2 text-sm text-red-500" key={error}>
+                      {error}
+                    </p>
+                ))}
               </div>
               
               <div>
                 <Label htmlFor="email" className="block mb-2">Email</Label>
-                <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} required className="w-full" />
+                <Input id="email" name="email" type="email" className="w-full" aria-describedby="email-error"/>
+              </div>
+
+              <div id="email-error" aria-live="polite" aria-atomic="true">
+                {state.errors?.email &&
+                  state.errors.email.map((error: string) => (
+                    <p className="mt-2 text-sm text-red-500" key={error}>
+                      {error}
+                    </p>
+                ))}
               </div>
             </div>
             
@@ -82,15 +93,22 @@ export default function UserRegistrationForm() {
               <div className="space-y-4">
                 <Label htmlFor="birthDate" className="block text-center mb-2">Fecha de nacimiento</Label>
                 <Input
-                  id="birthDate"
-                  name="birthDate"
+                  id="fechanacimiento"
+                  name="fechanacimiento"
                   type="text"
                   placeholder="DD/MM/AAAA"
-                  value={formData.birthDate}
-                  onChange={handleInputChange}
-                  required
                   className="w-full"
+                  aria-describedby="fechanacimiento-error"
                 />
+              </div>
+
+              <div id="fechanacimiento-error" aria-live="polite" aria-atomic="true">
+                {state.errors?.fecha_nac &&
+                  state.errors.fecha_nac.map((error: string) => (
+                    <p className="mt-2 text-sm text-red-500" key={error}>
+                      {error}
+                    </p>
+                ))}
               </div>
             </div>
           </div>
@@ -103,7 +121,5 @@ export default function UserRegistrationForm() {
             <Button type="submit" className="w-1/3">Guardar Usuario</Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
   )
 }
