@@ -50,6 +50,11 @@ export function DashboardLayoutComponent({ children }: { children: React.ReactNo
                   </Link>
                 </nav>
                 <nav className="space-y-2 p-4">
+                  <Link href="/admin-dashboard" className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-accent">
+                    <span>Admin Dashboard</span>
+                  </Link>
+                </nav>
+                <nav className="space-y-2 p-4">
                   {['Section 1', 'Section 2', 'Section 3', 'Section 4', 'Section 5'].map((section, index) => (
                     <Link 
                       key={index} 
