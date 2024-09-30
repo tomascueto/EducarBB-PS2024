@@ -90,11 +90,26 @@ export default function RegistrationForm() {
             </div>
             
             <div className="flex flex-col justify-center">
+
+              <div>
+                <Label htmlFor="contraseña" className="block mb-2">Contraseña</Label>
+                <Input id="contraseña" name="contraseña" type="text" className="w-full" aria-describedby="contraseña-error"/>
+              </div>
+
+              <div id="contraseña-error" aria-live="polite" aria-atomic="true">
+                {state.errors?.contraseña &&
+                  state.errors.contraseña.map((error: string) => (
+                    <p className="mt-2 text-sm text-red-500" key={error}>
+                      {error}
+                    </p>
+                ))}
+              </div>
+
               <div className="space-y-4">
                 <Label htmlFor="birthDate" className="block text-center mb-2">Fecha de nacimiento</Label>
                 <Input
-                  id="fechanacimiento"
-                  name="fechanacimiento"
+                  id="fecha_nac"
+                  name="fecha_nac"
                   type="text"
                   placeholder="DD/MM/AAAA"
                   className="w-full"

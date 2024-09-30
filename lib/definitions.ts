@@ -14,7 +14,7 @@ export type UsuarioState = {
         apellido?: string[];
         dni?: string[];
         email?: string[];
-        //contraseña?: string[];
+        contraseña?: string[];
         fecha_nac?: string[];
     };
     message?: string | null;
