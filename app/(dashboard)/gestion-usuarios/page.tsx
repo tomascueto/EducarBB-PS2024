@@ -1,9 +1,20 @@
-'use client'
+import  UserWrapper  from '@/components/admin-dashboard/userwrapper';
+import { fetchUsuarios } from '@/lib/data';
+import { Usuario } from '@/lib/definitions';
+import UserList from '@/components/user-list';
 
-import Lista from "@/components/user-list";
-
-export default function getSelection(){
+export default async function AdminDashboard() {
+    
+    const usuarios: Usuario[] = await fetchUsuarios();
+    console.log(usuarios)
+    
     return(
-        <Lista />
-    )
+        <>
+            <div>Admin Dashboard</div>
+            <UserList usuarios={usuarios} />
+        </>
+    );
+
+
+
 }

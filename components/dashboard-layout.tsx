@@ -46,12 +46,7 @@ export function DashboardLayoutComponent({ children }: { children: React.ReactNo
               <ScrollArea className="flex-1">
                 <nav className="space-y-2 p-4">
                   <Link href="/gestion-usuarios" className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-accent">
-                    <span>Gestion de usuarios</span>
-                  </Link>
-                </nav>
-                <nav className="space-y-2 p-4">
-                  <Link href="/admin-dashboard" className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-accent">
-                    <span>Admin Dashboard</span>
+                    <span>Gestión Usuarios</span>
                   </Link>
                 </nav>
                 <nav className="space-y-2 p-4">

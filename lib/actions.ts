@@ -4,8 +4,7 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { hash } from 'crypto';  
-import { UsuarioState } from './definitions';
+import { Usuario, UsuarioState } from './definitions';
 import crypto from 'node:crypto';
 
 
@@ -31,7 +30,7 @@ const UsuarioFormSchema = z.object({
     
 });
 
-export async function crearUsuario(prevState : UsuarioState, formData : FormData){
+export async function crearUsuario(prevState: UsuarioState, formData: FormData){
 
     console.log(formData);
 
@@ -62,7 +61,8 @@ export async function crearUsuario(prevState : UsuarioState, formData : FormData
         fecha_nac
     } = validatedFields.data;
     console.log(contraseña);
-    const contraseñaHasheada = crypto.hash('sha1',contraseña);
+    // const contraseñaHasheada = crypto.hash('sha1',contraseña);         NO ME FUNCA
+    const contraseñaHasheada = crypto.createHash('sha256').update(contraseña).digest('hex'); 
     console.log(contraseñaHasheada);
 
     try {
@@ -79,6 +79,27 @@ export async function crearUsuario(prevState : UsuarioState, formData : FormData
     revalidatePath('/');
     redirect('/');
 }
+
+export async function borrarUsuario(user: Usuario) {
+    try {
+        await sql`
+        DELETE FROM usuarios WHERE dni = ${user.dni}
+        `;
+
+    } catch (error) {
+        return {
+            message: 'Database Error: No se pudo borrar el usuario',
+        };
+    }
+    redirect('/gestion-usuarios');
+}
+
+
+
+
+
+
+
 /*
 export async function updateProduct(id:string, prevState : State,formData : FormData){
    
