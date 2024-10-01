@@ -23,7 +23,7 @@ export async function fetchUsuarioPorDni(dni: string) {
     noStore();
     try {
       const user = await sql<Usuario>`SELECT dni, nombres, apellido, email, TO_CHAR(fechanacimiento, 'DD/MM/YYYY') as fechanacimiento FROM usuarios WHERE dni = ${dni}`
-
+    
       if (user.rows.length === 0) {
         throw new Error(`No se encontró usuario con DNI: ${dni}`);
       }
@@ -33,4 +33,14 @@ export async function fetchUsuarioPorDni(dni: string) {
       console.error('Database Error:', error)
       throw new Error('Failed to fetch user')
     }
+}
+
+export async function fetchRoles() {
+  try {
+    const roles = await sql`SELECT * FROM roles`;
+    return roles.rows;
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch roles')
+  }
 }
