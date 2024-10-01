@@ -5,7 +5,7 @@ import UserList from '@/components/user-list';
 export default async function AdminDashboard() {
     
     const usuarios: Usuario[] = await fetchUsuarios();
-    console.log(usuarios)
+    //console.log(usuarios)
     
     return(
         <>

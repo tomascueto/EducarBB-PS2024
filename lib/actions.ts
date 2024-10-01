@@ -78,7 +78,7 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
         fechanacimiento
     } = validatedFields.data;
     console.log(contraseña);
-    // const contraseñaHasheada = crypto.hash('sha1',contraseña);         NO ME FUNCA
+
     const contraseñaHasheada = crypto.createHash('sha256').update(contraseña).digest('hex'); 
     console.log(contraseñaHasheada);
 
