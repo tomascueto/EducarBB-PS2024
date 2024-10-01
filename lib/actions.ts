@@ -24,10 +24,27 @@ const UsuarioFormSchema = z.object({
     contraseña: z.string({
         invalid_type_error: 'Poner una contraseña'
     }).min(1,{message: 'Poner una contraseña'}),
-    fecha_nac: z.string({
+    fechanacimiento: z.string({
         invalid_type_error: 'Poner una fecha de nacimiento'
     }).min(1,{message: 'Poner una fecha de nacimiento'}),
     
+});
+
+const UsuarioUpdateFormSchema = z.object({
+    prevDni: z.string(),
+    dni: z.string({
+        invalid_type_error: 'Poner un dni'
+    }).min(1,{message: 'Poner un dni'}),
+    nombres: z.string({
+        invalid_type_error: 'Poner un nombre'
+    }).min(1,{message: 'Poner un nombre'}),
+    apellido: z.string({
+        invalid_type_error: 'Poner un apellido'
+    }).min(1,{message: 'Poner un apellido'}),
+    email: z.string({
+        invalid_type_error: 'Poner un email'
+    }).min(1,{message: 'Poner un email'}),
+    contraseña: z.string().optional()
 });
 
 export async function crearUsuario(prevState: UsuarioState, formData: FormData){
@@ -40,7 +57,7 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
         apellido: formData.get('apellido'),
         email: formData.get('email'),
         contraseña: formData.get('contrasenia'),
-        fecha_nac: formData.get('fecha_nac')
+        fechanacimiento: formData.get('fechanacimiento')
     });
 
     console.log(validatedFields);
@@ -58,7 +75,7 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
         apellido, 
         email, 
         contraseña,
-        fecha_nac
+        fechanacimiento
     } = validatedFields.data;
     console.log(contraseña);
     // const contraseñaHasheada = crypto.hash('sha1',contraseña);         NO ME FUNCA
@@ -68,7 +85,7 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
     try {
         await sql`
         INSERT INTO usuarios (dni, nombres, apellido, email, contraseña, fechanacimiento)
-        VALUES (${dni}, ${nombres}, ${apellido}, ${email}, ${contraseñaHasheada}, ${fecha_nac});
+        VALUES (${dni}, ${nombres}, ${apellido}, ${email}, ${contraseñaHasheada}, ${fechanacimiento});
         `;
     } catch (error) {
         console.error('Database Error:', error);
@@ -79,6 +96,80 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
     revalidatePath('/');
     redirect('/');
 }
+
+
+export async function modificarUsuario(prevState: UsuarioState, formData: FormData) {
+
+    const validatedFields = UsuarioUpdateFormSchema.safeParse({
+        prevDni: formData.get('prevDni'),
+        dni: formData.get('dni'),
+        nombres: formData.get('nombres'),
+        apellido: formData.get('apellido'),
+        email: formData.get('email'),
+        contraseña: formData.get('contrasenia')
+    });
+
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: 'Error en los campos al modificar el usuario.',
+        };
+    }
+
+    const { 
+        prevDni,
+        dni,
+        nombres,
+        apellido, 
+        email, 
+        contraseña
+    } = validatedFields.data;
+
+    // Si hay una nueva contraseña, se encripta antes de guardar
+    let contraseñaHasheada
+    if (contraseña) {
+       contraseñaHasheada = crypto.createHash('sha256').update(contraseña).digest('hex');
+    }
+
+    try {
+        if (contraseña) {
+            await sql`
+              UPDATE usuarios
+              SET 
+                dni = ${dni}, 
+                nombres = ${nombres}, 
+                apellido = ${apellido},
+                email = ${email}, 
+                contraseña = ${contraseña}
+              WHERE dni = ${prevDni}
+            `
+          } else {
+            await sql`
+              UPDATE usuarios
+              SET 
+                dni = ${dni}, 
+                nombres = ${nombres}, 
+                apellido = ${apellido},
+                email = ${email}
+              WHERE dni = ${prevDni}
+            `
+          }
+      
+          if (prevDni !== dni) {
+            // Si el DNI ha cambiado, actualiza cualquier referencia en otras tablas
+          }
+
+    } catch (error) {
+        console.error('Database Error:', error);
+        return {
+            message: 'Error en la base de datos: error al modificar el usuario.',
+        };
+    }
+
+    revalidatePath('/gestion-usuarios');
+    redirect('/gestion-usuarios');
+}
+
 
 export async function borrarUsuario(user: Usuario) {
     try {
@@ -91,6 +182,7 @@ export async function borrarUsuario(user: Usuario) {
             message: 'Database Error: No se pudo borrar el usuario',
         };
     }
+    revalidatePath('/gestion-usuarios');
     redirect('/gestion-usuarios');
 }
 

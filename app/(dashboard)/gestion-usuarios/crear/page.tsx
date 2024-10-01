@@ -1,8 +1,8 @@
-import Formulario from "@/components/user-registration-form";
+import RegistrationForm from "@/components/user-registration-form";
 
-export default function getSelection(){
+export default function UserCreationDashboard(){
     return(
-        <Formulario />
+        <RegistrationForm />
     )
     
 }

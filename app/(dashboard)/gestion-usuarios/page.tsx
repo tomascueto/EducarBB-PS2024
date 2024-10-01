@@ -1,4 +1,3 @@
-import  UserWrapper  from '@/components/admin-dashboard/userwrapper';
 import { fetchUsuarios } from '@/lib/data';
 import { Usuario } from '@/lib/definitions';
 import UserList from '@/components/user-list';

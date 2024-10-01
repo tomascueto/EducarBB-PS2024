@@ -4,9 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import  Link  from "next/link"
-
 import { useFormState } from 'react-dom';
 import { crearUsuario } from '@/lib/actions';
 import { UsuarioState } from "@/lib/definitions"
@@ -15,7 +13,7 @@ export default function RegistrationForm() {
 
   const initialState : UsuarioState = { message: "", errors: {} };
   const [state, formAction] = useFormState(crearUsuario, initialState);
-
+  
   return (
         <form action={formAction} className="space-y-6">
           <div className="w-2/3 mx-auto mb-6">
@@ -93,24 +91,10 @@ export default function RegistrationForm() {
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="contrasenia" className="block mb-2">Contraseña</Label>
-                  <Input id="contrasenia" name="contrasenia" type="text" className="w-full" aria-describedby="contraseña-error"/>
-                </div>
-
-                <div id="contraseña-error" aria-live="polite" aria-atomic="true">
-                  {state.errors?.contraseña &&
-                    state.errors.contraseña.map((error: string) => (
-                      <p className="mt-2 text-sm text-red-500" key={error}>
-                        {error}
-                      </p>
-                  ))}
-                </div>
-
-                <div>
                   <Label htmlFor="birthDate" className="block mb-2">Fecha de nacimiento</Label>
                   <Input
-                    id="fecha_nac"
-                    name="fecha_nac"
+                    id="fechanacimiento"
+                    name="fechanacimiento"
                     type="date"
                     className="w-full"
                     aria-describedby="fechanacimiento-error"
@@ -118,8 +102,22 @@ export default function RegistrationForm() {
                 </div>
 
                 <div id="fechanacimiento-error" aria-live="polite" aria-atomic="true">
-                  {state.errors?.fecha_nac &&
-                    state.errors.fecha_nac.map((error: string) => (
+                  {state.errors?.fechanacimiento &&
+                    state.errors.fechanacimiento.map((error: string) => (
+                      <p className="mt-2 text-sm text-red-500" key={error}>
+                        {error}
+                      </p>
+                  ))}
+                </div>
+
+                <div>
+                  <Label htmlFor="contrasenia" className="block mb-2">Contraseña</Label>
+                  <Input id="contrasenia" name="contrasenia" type="text" className="w-full" aria-describedby="contraseña-error"/>
+                </div>
+
+                <div id="contraseña-error" aria-live="polite" aria-atomic="true">
+                  {state.errors?.contraseña &&
+                    state.errors.contraseña.map((error: string) => (
                       <p className="mt-2 text-sm text-red-500" key={error}>
                         {error}
                       </p>

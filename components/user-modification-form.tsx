@@ -1,95 +1,136 @@
 "use client"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useFormState } from 'react-dom';
+import { Usuario, UsuarioModificationState } from "@/lib/definitions"
+import { modificarUsuario } from "@/lib/actions"
+import Link  from "next/link"
 
-export default function UserModificationForm() {
-  const [formData, setFormData] = useState({
-    role: 'Admin',
-    firstName: 'Jonh',
-    lastName: 'Doe',
-    dni: '12345678',
-    email: 'john@example.com',
-    birthDate: '29/9/2000' 
-  })
+interface UserListProps {
+  usuario: Usuario;
+}
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
+export default function ModificationForm({ usuario }: UserListProps) {
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Form submitted:", formData)
-    // Aquí iría la lógica para enviar los datos al servidor
-  }
-
+  const initialState : UsuarioModificationState = { message: "", errors: {} };
+  const [state, formAction] = useFormState(modificarUsuario, initialState);
+  
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">Complete el siguiente formulario</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="firstName" className="block mb-2">Nombres</Label>
-                <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required className="w-full" />
-              </div>
-              
-              <div>
-                <Label htmlFor="lastName" className="block mb-2">Apellido</Label>
-                <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} required className="w-full" />
-              </div>
-              
-              <div>
-                <Label htmlFor="dni" className="block mb-2">DNI</Label>
-                <Input id="dni" name="dni" value={formData.dni} onChange={handleInputChange} required className="w-full" />
-              </div>
-              
-              <div>
-                <Label htmlFor="email" className="block mb-2">Email</Label>
-                <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} required className="w-full" />
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="birthDate" className="block text-center mb-2">Fecha de nacimiento</Label>
-                <Input
-                  id="birthDate"
-                  name="birthDate"
-                  type="text"
-                  value={formData.birthDate}
-                  readOnly
-                  className="w-full"
-                />
-              </div>
+    <form action={formAction} className="space-y-6">
+      <input type="hidden" name="prevDni" value={usuario.dni} />
 
-              <div>
-              <Label htmlFor="role" className="block text-center mb-2">Rol del Usuario</Label>
-                <Input
-                  id="role"
-                  name="role"
-                  type="text"
-                  value={formData.role}
-                  readOnly
-                  className="w-full"
-                />
-              </div>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="firstName" className="block mb-2">Nombres</Label>
+            <Input id="nombres" name="nombres" defaultValue={usuario.nombres} className="w-full" aria-describedby="nombres-error"/> 
+          </div>           
+          <div id="nombres-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.nombres &&
+              state.errors.nombres.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+            ))}
+          </div>
+
+          <div>
+            <Label htmlFor="apellido" className="block mb-2">Apellido</Label>
+            <Input id="apellido" name="apellido" defaultValue={usuario.apellido} className="w-full" aria-describedby="apellido-error" />
+          </div>
+          <div id="apellido-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.apellido &&
+              state.errors.apellido.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+            ))}
+          </div>
+
+          
+          <div>
+            <Label htmlFor="dni" className="block mb-2">DNI</Label>
+            <Input id="dni" name="dni" defaultValue={usuario.dni} className="w-full" aria-describedby="dni-error"/>
+          </div>
+          <div id="dni-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.dni &&
+              state.errors.dni.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+            ))}
           </div>
           
-          <div className="flex justify-between pt-4">
-            <Button type="button" variant="outline" className="w-1/3">Cancelar</Button>
-            <Button type="submit" className="w-1/3">Guardar Cambios</Button>
+          <div>
+            <Label htmlFor="email" className="block mb-2">Email</Label>
+            <Input id="email" name="email" defaultValue={usuario.email} type="email" className="w-full" aria-describedby="email-error"/>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+
+          <div id="email-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.email &&
+              state.errors.email.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+            ))}
+          </div>
+        </div>
+        
+        <div className="flex flex-col justify-center">
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="birthDate" className="block mb-2">Fecha de nacimiento</Label>
+              <Input
+                id="fechanacimiento"
+                name="fechanacimiento"
+                defaultValue={usuario.fechanacimiento}
+                type="text"
+                className="w-full"
+                readOnly
+                aria-describedby="fechanacimiento-error"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="role" className="block mb-2">Rol</Label>
+              <Input
+                id="role"
+                name="role"
+                defaultValue={usuario.rol}
+                type="string"
+                className="w-full"
+                readOnly
+                aria-describedby="fechanacimiento-error"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="contrasenia" className="block mb-2">Nueva Contraseña</Label>
+              <Input id="contrasenia" name="contrasenia" type="text" className="w-full" aria-describedby="contraseña-error"/>
+            </div>
+
+            <div id="contraseña-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.contraseña &&
+                state.errors.contraseña.map((error: string) => (
+                  <p className="mt-2 text-sm text-red-500" key={error}>
+                    {error}
+                  </p>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex justify-between pt-4">
+        <Link href="/gestion-usuarios" className="w-1/3">
+          <Button type="button" variant="outline" className="w-1/3">Cancelar</Button>
+        </Link>
+        
+        <Button type="submit" className="w-1/3">Guardar Usuario</Button>
+      </div>
+    </form>
   )
 }
