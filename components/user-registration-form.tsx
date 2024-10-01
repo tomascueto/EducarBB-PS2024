@@ -8,7 +8,6 @@ import  Link  from "next/link"
 import { useFormState } from 'react-dom';
 import { crearUsuario } from '@/lib/actions';
 import { UsuarioState } from "@/lib/definitions"
-
 export default function RegistrationForm() {
 
   const initialState : UsuarioState = { message: "", errors: {} };

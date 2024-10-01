@@ -33,3 +33,13 @@ export async function fetchUsuarioPorDni(dni: string) {
     throw new Error('Failed to fetch user')
   }
 }
+
+export async function fetchRoles() {
+  try {
+    const roles = await sql`SELECT * FROM roles`;
+    return roles.rows;
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch roles')
+  }
+}
