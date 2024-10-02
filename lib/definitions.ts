@@ -37,4 +37,8 @@ export type Rol = {
 };
 
 
-
+export type AuthError = {
+    type: string;
+    message: string;
+};
+  

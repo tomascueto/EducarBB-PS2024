@@ -4,8 +4,9 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { Usuario, UsuarioState } from './definitions';
+import { Usuario, UsuarioState, AuthError } from './definitions';
 import crypto from 'node:crypto';
+//import {signIn, signOut} from 'next-auth/react';
 
 
 const UsuarioFormSchema = z.object({
@@ -187,10 +188,38 @@ export async function borrarUsuario(user: Usuario) {
 }
 
 
+export async function authenticate(prevState: string | undefined, formData: FormData) {
+    const email = formData.get('email')?.toString();
+    const contraseña = formData.get('contrasenia')?.toString();
+  
+    if (!email || !contraseña) {
+      return { error: 'Email y contraseña son requeridos' };
+    }
+  
+    const contraseñaHasheada = crypto.createHash('sha256').update(contraseña).digest('hex'); 
+  
+    try {
+      const result = await sql`
+        SELECT * FROM usuarios WHERE email = ${email}
+      `;
+      
+      if (result.rowCount === 0) {
+        return { error: 'Credenciales incorrectas' };
+      }
+      
+      
 
+      const usuario = result.rows[0];
 
-
-
+      const contraseñaHasheadaDB = crypto.createHash('sha256').update(usuario.contraseña).digest('hex'); 
+      if (contraseñaHasheada === contraseñaHasheadaDB)
+        return { success: true, usuario };
+      else
+        return { success: false, usuario, error: 'Contraseña incorrecta' }
+    } catch (error) {
+      return { error: 'Hubo un error durante la autenticación' };
+    }
+  }
 
 /*
 export async function updateProduct(id:string, prevState : State,formData : FormData){
