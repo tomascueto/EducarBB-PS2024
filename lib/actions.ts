@@ -9,7 +9,7 @@ import crypto from 'node:crypto';
 //import {signIn, signOut} from 'next-auth/react';
 
 
-const UsuarioFormSchema = z.object({
+const CrearUsuarioFormSchema = z.object({
     dni: z.string({
         invalid_type_error: 'Poner un dni'
     }).min(1,{message: 'Poner una dni'}),
@@ -31,7 +31,7 @@ const UsuarioFormSchema = z.object({
     
 });
 
-const UsuarioUpdateFormSchema = z.object({
+const ModificarUsuarioFormSchema = z.object({
     prevDni: z.string(),
     dni: z.string({
         invalid_type_error: 'Poner un dni'
@@ -52,7 +52,7 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
 
     console.log(formData);
 
-    const validatedFields = UsuarioFormSchema.safeParse({
+    const validatedFields = CrearUsuarioFormSchema.safeParse({
         dni: formData.get('dni'),
         nombres: formData.get('nombres'),
         apellido: formData.get('apellido'),
@@ -78,10 +78,7 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
         contraseña,
         fechanacimiento
     } = validatedFields.data;
-    console.log(contraseña);
-
-    const contraseñaHasheada = crypto.createHash('sha256').update(contraseña).digest('hex'); 
-    console.log(contraseñaHasheada);
+    const contraseñaHasheada = crypto.hash('sha1',contraseña); 
 
     try {
         await sql`
@@ -95,13 +92,13 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
         };
     }
     revalidatePath('/');
-    redirect('/');
+    redirect('/gestion-usuarios');
 }
 
 
 export async function modificarUsuario(prevState: UsuarioState, formData: FormData) {
 
-    const validatedFields = UsuarioUpdateFormSchema.safeParse({
+    const validatedFields = ModificarUsuarioFormSchema.safeParse({
         prevDni: formData.get('prevDni'),
         dni: formData.get('dni'),
         nombres: formData.get('nombres'),
@@ -129,7 +126,7 @@ export async function modificarUsuario(prevState: UsuarioState, formData: FormDa
     // Si hay una nueva contraseña, se encripta antes de guardar
     let contraseñaHasheada
     if (contraseña) {
-       contraseñaHasheada = crypto.createHash('sha256').update(contraseña).digest('hex');
+       contraseñaHasheada = crypto.hash('sha1',contraseña);
     }
 
     try {
@@ -141,7 +138,7 @@ export async function modificarUsuario(prevState: UsuarioState, formData: FormDa
                 nombres = ${nombres}, 
                 apellido = ${apellido},
                 email = ${email}, 
-                contraseña = ${contraseña}
+                contraseña = ${contraseñaHasheada}
               WHERE dni = ${prevDni}
             `
           } else {
@@ -192,11 +189,13 @@ export async function authenticate(prevState: string | undefined, formData: Form
     const email = formData.get('email')?.toString();
     const contraseña = formData.get('contrasenia')?.toString();
   
+    //Validar del lado del servidor con schema
+
     if (!email || !contraseña) {
       return { error: 'Email y contraseña son requeridos' };
     }
   
-    const contraseñaHasheada = crypto.createHash('sha256').update(contraseña).digest('hex'); 
+    const contraseñaHasheada = crypto.hash('sha256',contraseña); 
   
     try {
       const result = await sql`
@@ -206,128 +205,14 @@ export async function authenticate(prevState: string | undefined, formData: Form
       if (result.rowCount === 0) {
         return { error: 'Credenciales incorrectas' };
       }
-      
-      
-
       const usuario = result.rows[0];
-
-      const contraseñaHasheadaDB = crypto.createHash('sha256').update(usuario.contraseña).digest('hex'); 
-      if (contraseñaHasheada === contraseñaHasheadaDB)
+      
+      if (contraseñaHasheada === usuario.contraseña)
         return { success: true, usuario };
       else
         return { success: false, usuario, error: 'Contraseña incorrecta' }
+    
     } catch (error) {
       return { error: 'Hubo un error durante la autenticación' };
     }
   }
-
-/*
-export async function updateProduct(id:string, prevState : State,formData : FormData){
-   
-    const validatedFields = UpdateProduct.safeParse({
-        productName: formData.get('productName'),
-        price: formData.get('price'),
-        brandName: formData.get('brandName'),
-        categoryName: formData.get('categoryName'),
-        description: formData.get('description'),
-    });
-
-    if (!validatedFields.success) {
-        return {
-          errors: validatedFields.error.flatten().fieldErrors,
-          message: 'Missing Fields. Failed to Update Product.',
-        };
-    }
-
-    const { 
-        productName,
-        price, 
-        brandName, 
-        categoryName, 
-        description
-    } = validatedFields.data;
-
-    try{
-        await sql`
-        UPDATE products
-        SET name = ${productName}, price = ${price}, brand_name = ${brandName}, category_name = ${categoryName}, description = ${description}
-        WHERE id = ${id}
-      `;
-
-    }catch(error){
-        return {
-            message: 'Database Error: Failed to Update product'
-        }
-    } 
-
-    revalidatePath('/admin/products');
-    redirect('/admin/products')
-
-}
-
-export async function deleteProduct(id: string, cloudinary_public_id:string) {
-
-    try{
-        const result = await cloudinary.uploader.destroy(cloudinary_public_id);
-        console.log('Imagen eliminada exitosamente:', result);
-        await sql`DELETE FROM products WHERE id = ${id}`;
-        revalidatePath('/admin/products');
-        return { message: 'Deleted product.' };
-    }catch(error){
-        return {
-            message: 'Database Error: Failed to delete Invoice.',
-        };
-    }
-}
-
-*/
-
-
-/*
-export async function authenticate(
-    prevState: string | undefined,
-    formData: FormData,
-  ) {
-    try {
-      console.log("Se ejecuta authenticate luego de presionar el boton log in");
-      console.log("Email que ingresa:"+formData.get('email'));
-      console.log("Password que ingresa:"+formData.get('password'));
-      await signIn('credentials',{
-        ...Object.fromEntries(formData),
-        redirectTo: "/admin"
-      });
-    } 
-    catch (error) {
-      if (error instanceof AuthError) {
-        switch (error.type) {
-          case 'CredentialsSignin':
-            return 'Invalid credentials.';
-          default:
-            return 'El email o contraseña son incorrectos.';
-        }
-      }
-      throw error;
-    }
-}
-
-
-export async function logOut() {
-    try{
-        await signOut({redirectTo : '/'})
-    }
-    catch (error) {
-        if (error instanceof AuthError) {
-            switch (error.type) {
-            case 'CredentialsSignin':
-                return 'Invalid credentials.';
-            default:
-                return 'Something went wrong.';
-            }
-        }
-        throw error;
-    }
-}
-
-
-
-*/

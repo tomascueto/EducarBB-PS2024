@@ -7,7 +7,7 @@ export async function GET() {
     
     try{
         const queryText = `
-            DROP TABLE IF EXISTS usuarios, roles;
+            DROP TABLE IF EXISTS usuario_rol,roles,usuarios;
         `;
         await db.query(queryText);
         return NextResponse.json({ message: 'Tablas eliminadas' });
