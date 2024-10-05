@@ -88,8 +88,12 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
         await sql`
         INSERT INTO usuarios (dni, nombres, apellido, email, contraseña, fechanacimiento)
         VALUES (${dni}, ${nombres}, ${apellido}, ${email}, ${contraseñaHasheada}, ${fechanacimiento});
+        `;
+
+        await sql`
         INSERT INTO Usuario_Rol (DNI, Rol) values (${dni}, ${rol});
         `;
+        
     } catch (error) {
         console.error('Database Error:', error);
         return {
