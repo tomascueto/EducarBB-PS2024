@@ -28,7 +28,9 @@ const UsuarioFormSchema = z.object({
     fechanacimiento: z.string({
         invalid_type_error: 'Poner una fecha de nacimiento'
     }).min(1,{message: 'Poner una fecha de nacimiento'}),
-    
+    rol: z.string({
+        invalid_type_error: 'Poner un rol'
+    }).min(1,{message: 'Poner un rol'})
 });
 
 const UsuarioUpdateFormSchema = z.object({
@@ -58,7 +60,8 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
         apellido: formData.get('apellido'),
         email: formData.get('email'),
         contraseña: formData.get('contrasenia'),
-        fechanacimiento: formData.get('fechanacimiento')
+        fechanacimiento: formData.get('fechanacimiento'),
+        rol: formData.get('rol')
     });
 
     console.log(validatedFields);
@@ -76,7 +79,8 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
         apellido, 
         email, 
         contraseña,
-        fechanacimiento
+        fechanacimiento,
+        rol
     } = validatedFields.data;
     console.log(contraseña);
 
@@ -87,6 +91,7 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
         await sql`
         INSERT INTO usuarios (dni, nombres, apellido, email, contraseña, fechanacimiento)
         VALUES (${dni}, ${nombres}, ${apellido}, ${email}, ${contraseñaHasheada}, ${fechanacimiento});
+        INSERT INTO Usuario_Rol (DNI, Rol) values (${dni}, ${rol});
         `;
     } catch (error) {
         console.error('Database Error:', error);

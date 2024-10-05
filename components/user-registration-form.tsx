@@ -16,15 +16,17 @@ export default function RegistrationForm() {
   return (
         <form action={formAction} className="space-y-6">
           <div className="w-2/3 mx-auto mb-6">
-            <Label htmlFor="role" className="block text-center mb-2">Rol del Usuario</Label>
+            <Label htmlFor="rol" className="block text-center mb-2">Rol del Usuario</Label>
             <Select>
-              <SelectTrigger id="role" className="w-full">
+              <SelectTrigger id="rol" className="w-full">
                 <SelectValue placeholder="Seleccionar rol" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="admin">Administrador</SelectItem>
-                <SelectItem value="user">Usuario</SelectItem>
-                <SelectItem value="guest">Invitado</SelectItem>
+                <SelectItem id="rol" value="1">Alumno</SelectItem>
+                <SelectItem id="rol" value="2">Padre</SelectItem>
+                <SelectItem id="rol" value="3">Docente</SelectItem>
+                <SelectItem id="rol" value="4">Directivo</SelectItem>
+                <SelectItem id="rol" value="5">Administrador</SelectItem>
               </SelectContent>
             </Select>
           </div>
