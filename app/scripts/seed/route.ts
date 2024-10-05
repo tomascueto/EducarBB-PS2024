@@ -41,7 +41,7 @@ export async function GET() {
         );
         `;
         await db.query(queryText);
-        return NextResponse.json({ message: 'Tabla usuarios creada con éxito' });
+        return NextResponse.json({ message: 'Tabla de roles creada con éxito' });
     } catch (error) {
         console.error('Error al crear la tabla usuarios:', error);
         return NextResponse.json({ error: 'Error al crear la tabla' }, { status: 500 });

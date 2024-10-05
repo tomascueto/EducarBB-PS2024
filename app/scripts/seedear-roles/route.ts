@@ -14,7 +14,7 @@ export async function GET() {
         (56789012, 2);  -- Carlos Alberto Fernández es Padre
         `;
         await db.query(queryText);
-        return NextResponse.json({ message: 'Tablas de roles seedeadas' });
+        return NextResponse.json({ message: 'Tablas de usuario_roles seedeadas' });
     } catch (error) {
         console.error('Error al obtener roles:', error);
         return NextResponse.json({ error: 'Error al obtener roles' }, { status: 500 });

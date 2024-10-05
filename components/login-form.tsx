@@ -49,7 +49,6 @@ export function LoginForm() {
       }, 3000)
     };
   
-
   return (
     <Card className="w-[350px] mx-auto my-10">
       <CardHeader className="space-y-1">
@@ -64,7 +63,7 @@ export function LoginForm() {
             <div className="grid gap-1">
               <Label htmlFor="email" className="text-sm font-medium">
                   Email
-                </Label>
+              </Label>
               <Input
                 id="username"
                 type="text"
