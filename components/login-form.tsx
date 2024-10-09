@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { authenticate } from '@/lib/actions';
+import Cookies from 'js-cookie';
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -29,17 +30,32 @@ export function LoginForm() {
       formData.append('contrasenia', password);
   
       try {
-        const { success, usuario, error } = await authenticate("",formData);
-        console.log("La respuesta es",success);
-        console.log("con usuario",usuario);
-        console.log("y con error",error);
-        if (success) {
-          window.location.href = '/home';
+        const response = await authenticate("", formData);
+        if ('success' in response) {
+          const { success, error } = response;
+          console.log("La respuesta es", success);
+          console.log("y con error", error);
+          if (success) {
+            const token = await response.data?.token ?? '';
+            Cookies.set('authToken', token, {
+              expires: 1, // 1 dia
+              path: '/', //path desde donde se puede acceder (toda la app)
+              secure: process.env.NODE_ENV === 'production',  // Secure in production
+              httpOnly: false
+          });
+            window.location.href = '/home';
+          } else {
+            if (error !== undefined)
+              setErrorMessage(typeof error === 'string' ? error : 'Hubo un error desconocido.');
+          }
         } else {
-          if(error !== undefined)
-            setErrorMessage(error);
+          if ('error' in response) {
+            console.log(response.error);
+          }
+          setErrorMessage('Hubo un error al autenticar.');
         }
       } catch (err) {
+        console.log(err);
         setErrorMessage('Hubo un error al autenticar.');
       } finally {
         setIsLoading(false);
