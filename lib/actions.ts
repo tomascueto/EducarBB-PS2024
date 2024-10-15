@@ -271,4 +271,5 @@ function generarJWT(user: { id: string, rol: string }) {
         throw new Error('JWT_SECRET is not defined');
     }
     const signer = new SignJWT(payload).setIssuedAt().setExpirationTime('1h').setProtectedHeader({ alg: 'HS256' });
-    return signer.sign(new TextEncoder().encode(process.env.JWT_SECRET));}
+    return signer.sign(new TextEncoder().encode(process.env.JWT_SECRET));
+}

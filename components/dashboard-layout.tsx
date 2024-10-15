@@ -1,25 +1,61 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChevronLeft, ChevronRight, Home, Calendar, LogOut } from 'lucide-react'
+import Cookies from 'js-cookie'
+import {jwtVerify} from 'jose';
+
+
+async function fetchUserName(): Promise<string | null> {
+  const secretKey = process.env.NEXT_PUBLIC_JWT_SECRET;
+  if (!secretKey) {
+    throw new Error('JWT_SECRET is not defined');
+  }
+
+  const SECRET_KEY = new TextEncoder().encode(secretKey);
+  const token = Cookies.get('authToken');
+  
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const { payload } = await jwtVerify(token, SECRET_KEY);
+    return payload.id as string;
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    return null;
+  }
+}
 
 export function DashboardLayoutComponent({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [username, setUsername] = useState<string | null>(null);
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+  useEffect(() => {
+    fetchUserName().then(name => setUsername(name));
+  }, []);
+
+
+
+  const logout = () =>{
+    Cookies.remove('authToken', {path: '/'});
+    window.location.href = '/login';
+  } 
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      {/* Top bar */}
       <header className="flex items-center justify-between px-4 py-2 border-b">
         <div className="flex items-center">
           <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-2">
             {isSidebarOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </Button>
-          <span className="font-semibold">User Name</span>
+          <span className="font-semibold">{username}</span>
           <div className="ml-8 flex items-center">
             <Link href="/home" className="flex items-center mr-4 hover:bg-accent rounded-md px-2 py-1">
               <Home className="h-4 w-4 mr-2" />
@@ -61,7 +97,7 @@ export function DashboardLayoutComponent({ children }: { children: React.ReactNo
                   ))}
                 </nav>
               </ScrollArea>
-              <Button variant="ghost" className="m-4 flex items-center space-x-2">
+              <Button variant="ghost" className="m-4 flex items-center space-x-2" onClick={logout}>
                 <LogOut className="h-4 w-4" />
                 <span>Cerrar sesión</span>
               </Button>
