@@ -70,7 +70,7 @@ export async function fetchUsuarioConRolPorDni(dni: string) {
                                       u.Apellido,
                                       u.email,
                                       u.Contraseña,
-                                      u.FechaNacimiento,
+                                      TO_CHAR(fechanacimiento, 'DD/MM/YYYY') as fechanacimiento,
                                       r.Nombre AS Rol
                                     FROM
                                       Usuarios u
