@@ -6,7 +6,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { Usuario, UsuarioState, AuthError } from './definitions';
 import crypto from 'node:crypto';
-//import {signIn, signOut} from 'next-auth/react';
+import { SignJWT } from 'jose';
+import { NextResponse } from 'next/server';
 
 
 const CrearUsuarioFormSchema = z.object({
@@ -50,6 +51,11 @@ const ModificarUsuarioFormSchema = z.object({
     contraseña: z.string().optional()
 });
 
+const LoginSchema = z.object({
+    email: z.string().email({ message: 'Invalid email' }),
+    contraseña: z.string().min(1, { message: 'Password is required' }),
+});
+
 export async function crearUsuario(prevState: UsuarioState, formData: FormData){
 
     console.log(formData);
@@ -82,7 +88,7 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
         fechanacimiento,
         rol
     } = validatedFields.data;
-    const contraseñaHasheada = crypto.hash('sha1',contraseña); 
+    const contraseñaHasheada = crypto.hash('sha256',contraseña); 
 
     try {
         await sql`
@@ -135,7 +141,7 @@ export async function modificarUsuario(prevState: UsuarioState, formData: FormDa
     // Si hay una nueva contraseña, se encripta antes de guardar
     let contraseñaHasheada
     if (contraseña) {
-       contraseñaHasheada = crypto.hash('sha1',contraseña);
+       contraseñaHasheada = crypto.hash('sha256',contraseña);
     }
 
     try {
@@ -195,33 +201,74 @@ export async function borrarUsuario(user: Usuario) {
 
 
 export async function authenticate(prevState: string | undefined, formData: FormData) {
-    const email = formData.get('email')?.toString();
-    const contraseña = formData.get('contrasenia')?.toString();
-  
-    //Validar del lado del servidor con schema
 
-    if (!email || !contraseña) {
-      return { error: 'Email y contraseña son requeridos' };
-    }
-  
-    const contraseñaHasheada = crypto.hash('sha256',contraseña); 
-  
-    try {
-      const result = await sql`
-        SELECT * FROM usuarios WHERE email = ${email}
-      `;
-      
-      if (result.rowCount === 0) {
-        return { error: 'Credenciales incorrectas' };
-      }
-      const usuario = result.rows[0];
-      
-      if (contraseñaHasheada === usuario.contraseña)
-        return { success: true, usuario };
-      else
-        return { success: false, usuario, error: 'Contraseña incorrecta' }
+    const validatedFields = LoginSchema.safeParse(
+        {
+            email: formData.get('email'),
+            contraseña: formData.get('contrasenia')
+        }
+    );
     
-    } catch (error) {
-      return { error: 'Hubo un error durante la autenticación' };
+    if (!validatedFields.success) {
+        return { success: false, error: validatedFields.error.flatten().fieldErrors };
     }
-  }
+    
+    const { email, contraseña } = validatedFields.data;
+    const contraseñaHasheada = crypto.hash('sha256', contraseña);
+    
+    try {
+        const result = await sql`
+            SELECT * FROM usuarios WHERE email = ${email}
+        `;
+    
+        if (result.rowCount === 0) {
+            return { success: false, error: 'Credenciales incorrectas' };
+        }
+    
+        const usuario = {
+            dni: result.rows[0].dni,
+            nombres: result.rows[0].nombres,
+            email: result.rows[0].email,
+            contraseña: result.rows[0].contraseña,
+        };
+    
+        if (contraseñaHasheada === usuario.contraseña) {
+            const rol_result = await sql`
+                SELECT * FROM usuario_rol ur
+                JOIN Roles r ON ur.rol = r.id
+                WHERE dni = ${usuario.dni}
+            `;
+            const rol = {
+                dni: rol_result.rows[0].dni,
+                nombre: rol_result.rows[0].nombre,
+            };
+            const sessionToken = generarJWT({ id: usuario.nombres, rol: rol.nombre });
+    
+            
+            const responseData = {
+                success: true,
+                usuario: usuario.nombres,
+                rol: rol.nombre,
+                token: sessionToken,
+            };
+    
+            return {success: true, data:responseData};
+        } else {
+            return { success: false, error: 'Contraseña incorrecta' };
+        }
+    } catch (error) {
+        return { error: 'Hubo un error durante la autenticación en SQL' };
+    }
+}
+    
+function generarJWT(user: { id: string, rol: string }) {
+    const payload = {
+        id: user.id,
+        rol: user.rol,
+    };
+
+    if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET is not defined');
+    }
+    const signer = new SignJWT(payload).setIssuedAt().setExpirationTime('1h').setProtectedHeader({ alg: 'HS256' });
+    return signer.sign(new TextEncoder().encode(process.env.JWT_SECRET));}
