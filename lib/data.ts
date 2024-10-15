@@ -70,3 +70,13 @@ export async function fetchRoles() {
     throw new Error('Failed to fetch roles')
   }
 }
+
+export async function fetchMaterias() {
+  try {
+    const materias = await sql`SELECT * FROM materias`;
+    return materias.rows;
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch materias')
+  }
+}

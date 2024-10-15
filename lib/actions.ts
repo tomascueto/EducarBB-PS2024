@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { Usuario, UsuarioState, AuthError } from './definitions';
+import { Usuario, UsuarioState, AuthError, Materia, MateriaState } from './definitions';
 import crypto from 'node:crypto';
 import { SignJWT } from 'jose';
 import { NextResponse } from 'next/server';
@@ -56,6 +56,7 @@ const LoginSchema = z.object({
     contraseña: z.string().min(1, { message: 'Password is required' }),
 });
 
+// USUARIOS
 export async function crearUsuario(prevState: UsuarioState, formData: FormData){
 
     console.log(formData);
@@ -200,6 +201,7 @@ export async function borrarUsuario(user: Usuario) {
 }
 
 
+// AUTENTICACIÓN
 export async function authenticate(prevState: string | undefined, formData: FormData) {
 
     const validatedFields = LoginSchema.safeParse(
@@ -214,7 +216,8 @@ export async function authenticate(prevState: string | undefined, formData: Form
     }
     
     const { email, contraseña } = validatedFields.data;
-    const contraseñaHasheada = crypto.hash('sha256', contraseña);
+    //const contraseñaHasheada = crypto.hash('sha256', contraseña);
+    const contraseñaHasheada = crypto.createHash('sha256').update(contraseña).digest('hex');
     
     try {
         const result = await sql`
@@ -243,7 +246,7 @@ export async function authenticate(prevState: string | undefined, formData: Form
                 nombre: rol_result.rows[0].nombre,
             };
             const sessionToken = generarJWT({ id: usuario.nombres, rol: rol.nombre });
-    
+        
             
             const responseData = {
                 success: true,
@@ -272,4 +275,62 @@ function generarJWT(user: { id: string, rol: string }) {
     }
     const signer = new SignJWT(payload).setIssuedAt().setExpirationTime('1h').setProtectedHeader({ alg: 'HS256' });
     return signer.sign(new TextEncoder().encode(process.env.JWT_SECRET));
+}
+
+// MATERIAS
+export async function crearMateria(prevState: MateriaState, formData: FormData){
+
+    // console.log(formData);
+
+    // const validatedFields = CrearMateriaFormSchema.safeParse({
+    //     codigo: formData.get('codigo'),
+    //     nombre: formData.get('nombre'),
+    //     //plan: formData.get('plan'),
+    // });
+
+    // console.log(validatedFields);
+
+    // if (!validatedFields.success) {
+    //     return {
+    //       errors: validatedFields.error.flatten().fieldErrors,
+    //       message: 'Error al crear el usuario. Error en los campos.',
+    //     };
+    // }
+
+    // const { 
+    //     codigo,
+    //     nombre,
+    //     plan
+    // } = validatedFields.data;
+
+    // try {
+    //     await sql`
+    //     INSERT INTO materias (codigo, nombre, plan)
+    //     VALUES (${codigo}, ${nombre}, ${plan});
+    //     `;
+        
+    // } catch (error) {
+    //     console.error('Database Error:', error);
+    //     return {
+    //         message: 'Error en la base de datos: error al crear una materia.',
+    //     };
+    // }
+    // revalidatePath('/');
+    // redirect('/gestion-materias');
+}
+
+
+export async function borrarMateria(materia: Materia) {
+    // try {
+    //     await sql`
+    //     DELETE FROM materias WHERE codigo = ${materia.codigo}
+    //     `;
+
+    // } catch (error) {
+    //     return {
+    //         message: 'Database Error: No se pudo borrar la materia',
+    //     };
+    // }
+    // revalidatePath('/gestion-materias');
+    // redirect('/gestion-materias');
 }

@@ -43,3 +43,18 @@ export type AuthError = {
     message: string;
 };
   
+
+export type Materia = {
+    nombre: string;
+    codigo: string;
+    plan?: File;
+};
+
+export type MateriaState = {
+    errors?: {
+        nombre?: string[];
+        codigo?: string[];
+        plan?: string[];
+    };
+    message?: string | null;
+};
