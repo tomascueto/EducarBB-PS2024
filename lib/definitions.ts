@@ -16,6 +16,7 @@ export type UsuarioState = {
         email?: string[];
         contraseña?: string[];
         fechanacimiento?: string[];
+        rol?: string[];
     };
     message?: string | null;
 };

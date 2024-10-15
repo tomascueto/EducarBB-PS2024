@@ -29,7 +29,21 @@ export default function RegistrationForm() {
                 <SelectItem value="5">Administrador</SelectItem>
               </SelectContent>
             </Select>
+            <div id="rol-error" aria-live="polite" aria-atomic="true">
+                {state.errors?.rol &&
+                  state.errors.rol.map((error: string) => (
+                    <p className="mt-2 text-sm text-red-500" key={error}>
+                      {error}
+                    </p>
+                ))}
+            </div>
+
+
           </div>
+
+
+
+
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="space-y-4">
