@@ -58,3 +58,21 @@ export type MateriaState = {
     };
     message?: string | null;
 };
+
+export type PlanEstudio = {
+    nombre: string;
+    materias: Materia_Plan[];
+};
+
+export type PlanEstudioState = {
+    errors?: {
+        nombre?: string[];
+        materias?: string[];
+    };
+    message?: string | null;
+};
+
+export type Materia_Plan = {
+    materia: Materia;
+    año: string;
+};

@@ -38,14 +38,8 @@ export default function RegistrationForm() {
                     </p>
                 ))}
             </div>
-
-
           </div>
-
-
-
-
-          
+   
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="space-y-4">
               <div>

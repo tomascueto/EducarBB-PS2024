@@ -14,8 +14,7 @@ export default function SubjectRegistrationForm() {
 
   const initialState : MateriaState = { message: "", errors: {} };
   const [state, formAction] = useFormState<MateriaState, FormData>(async (state, formData) => {
-    await crearMateria(state, formData);
-    return state;
+    return await crearMateria(state, formData);
   }, initialState);
   const [file, setFile] = useState<File | null>(null)
   
@@ -38,7 +37,7 @@ export default function SubjectRegistrationForm() {
 
               <div>
                 <Label htmlFor="codigo" className="block mb-2">Código</Label>
-                <Input id="codigo" name="codigo" className="w-full" aria-describedby="dni-error"/>
+                <Input id="codigo" name="codigo" className="w-full" aria-describedby="codigo-error"/>
               </div>
               <div id="codigo-error" aria-live="polite" aria-atomic="true">
                 {state.errors?.codigo &&
