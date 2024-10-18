@@ -2,6 +2,7 @@ import { sql } from '@vercel/postgres';
 
 import { 
   Materia,
+  PlanEstudio,
   Usuario
   //Acá importar los tipos.
  } from './definitions';
@@ -106,8 +107,6 @@ export async function fetchMaterias() {
   noStore();
   try {
     const materias = await sql<Materia>`SELECT * FROM Materia`;
-    
-
     return materias.rows;
   } catch (error) {
     console.error('Database Error:', error)
@@ -117,11 +116,11 @@ export async function fetchMaterias() {
 
 export async function fetchPlanes() {
   noStore();
-  // try {
-  //     const planes = await sql`SELECT * FROM planes`;
-  //     return planes.rows;
-  // } catch (error) {
-  //     console.error('Database Error:', error)
-  //     throw new Error('Failed to fetch planes')
-  // }
+  try {
+      const planes = await sql<PlanEstudio>`SELECT * FROM Plan_de_Estudios`;
+      return planes.rows;
+  } catch (error) {
+      console.error('Database Error:', error)
+      throw new Error('Failed to fetch planes')
+  }
 }
