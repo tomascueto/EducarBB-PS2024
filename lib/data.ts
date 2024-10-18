@@ -101,11 +101,21 @@ export async function fetchRoles() {
 }
 
 export async function fetchMaterias() {
-  try {
-    const materias = await sql`SELECT * FROM materias`;
-    return materias.rows;
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch materias')
-  }
+  // try {
+  //   const materias = await sql`SELECT * FROM materias`;
+  //   return materias.rows;
+  // } catch (error) {
+  //   console.error('Database Error:', error)
+  //   throw new Error('Failed to fetch materias')
+  // }
+}
+
+export async function fetchPlanes() {
+  // try {
+  //     const planes = await sql`SELECT * FROM planes`;
+  //     return planes.rows;
+  // } catch (error) {
+  //     console.error('Database Error:', error)
+  //     throw new Error('Failed to fetch planes')
+  // }
 }
