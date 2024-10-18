@@ -401,7 +401,7 @@ export async function crearPlan(prevState: PlanEstudioState, formData: FormData)
 
     try {
         const result = await sql`
-        INSERT INTO planes (nombre)
+        INSERT INTO Plan_de_Estudios (nombre)
         VALUES (${nombre})
         RETURNING Plan_ID;
         `;
@@ -426,10 +426,9 @@ export async function crearPlan(prevState: PlanEstudioState, formData: FormData)
 
 export async function borrarPlanEstudio(plan: PlanEstudio) {
     try {
-        // await sql`
-        // DELETE FROM planes WHERE nombre = ${plan.nombre};
-        // `;
-
+        await sql`
+        DELETE FROM Plan_de_Estudios WHERE nombre = ${plan.nombre};
+        `;
     } catch (error) {
         return {
             message: 'Database Error: No se pudo borrar el plan de estudio',
