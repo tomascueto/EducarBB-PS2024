@@ -316,10 +316,10 @@ export async function crearMateria(prevState: MateriaState, formData: FormData){
     } = validatedFields.data;
 
     try {
-        // await sql`
-        // INSERT INTO materias (codigo, nombre, plan)
-        // VALUES (${codigo}, ${nombre}, ${plan});
-        // `;
+        await sql`
+        INSERT INTO Materia (codigo, nombre)
+        VALUES (${codigo}, ${nombre});
+        `;
         
     } catch (error) {
         console.error('Database Error:', error);
@@ -334,9 +334,9 @@ export async function crearMateria(prevState: MateriaState, formData: FormData){
 
 export async function borrarMateria(materia: Materia) {
     try {
-        // await sql`
-        // DELETE FROM materias WHERE codigo = ${materia.codigo}
-        // `;
+        await sql`
+        DELETE FROM Materia WHERE codigo = ${materia.codigo}
+        `;
 
     } catch (error) {
         return {
@@ -400,19 +400,19 @@ export async function crearPlan(prevState: PlanEstudioState, formData: FormData)
     } = validatedFields.data;
 
     try {
-        // const result = await sql`
-        // INSERT INTO planes (nombre)
-        // VALUES (${nombre})
-        // RETURNING Plan_ID;
-        // `;
+        const result = await sql`
+        INSERT INTO planes (nombre)
+        VALUES (${nombre})
+        RETURNING Plan_ID;
+        `;
 
-        // const planId = result.rows[0].Plan_ID;
+        const planId = result.rows[0].Plan_ID;
 
-        // for (const materia of validatedMaterias) {
-        //     await sql`
-        //     INSERT INTO Materia_Plan (Plan_ID, Codigo, Año) values (${planId}, ${materia.codigo},${materia.año});
-        //     `;
-        // }
+        for (const materia of validatedMaterias) {
+            await sql`
+            INSERT INTO Materia_Plan (Plan_ID, Codigo, Año) values (${planId}, ${materia.codigo}, ${materia.año});
+            `;
+        }
         
     } catch (error) {
         console.error('Database Error:', error);
@@ -427,7 +427,7 @@ export async function crearPlan(prevState: PlanEstudioState, formData: FormData)
 export async function borrarPlanEstudio(plan: PlanEstudio) {
     try {
         // await sql`
-        // DELETE FROM planes WHERE nombre = ${plan.nombre}
+        // DELETE FROM planes WHERE nombre = ${plan.nombre};
         // `;
 
     } catch (error) {
