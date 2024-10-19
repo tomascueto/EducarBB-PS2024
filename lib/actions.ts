@@ -407,7 +407,7 @@ export async function crearPlan(prevState: PlanEstudioState, formData: FormData)
         RETURNING Plan_ID;
         `;
 
-        const planId = result.rows[0].Plan_ID;
+        const planId = result.rows[0].plan_id;
 
         for (const materia of validatedMaterias) {
             await sql`
