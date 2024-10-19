@@ -1,6 +1,7 @@
 import { sql } from '@vercel/postgres';
 
 import { 
+  Aula,
   Materia,
   PlanEstudio,
   Usuario
@@ -176,5 +177,16 @@ export async function fetchPlanes() {
   } catch (error) {
       console.error('Database Error:', error)
       throw new Error('Failed to fetch planes')
+  }
+}
+
+export async function fetchAulas() {
+  noStore();
+  try {
+      const aulas = await sql<Aula>`SELECT * FROM Aula`;
+      return aulas.rows;
+  } catch (error) {
+      console.error('Database Error:', error)
+      throw new Error('Failed to fetch aulas')
   }
 }
