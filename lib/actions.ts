@@ -4,11 +4,12 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { Usuario, UsuarioState, AuthError, Materia, MateriaState, PlanEstudioState, PlanEstudio } from './definitions';
+import { Usuario, UsuarioState, AuthError, Materia, MateriaState, PlanEstudioState, PlanEstudio, Aula, AulaState } from './definitions';
 import crypto from 'node:crypto';
 import { SignJWT } from 'jose';
 import { NextResponse } from 'next/server';
 
+const currentYear = new Date().getFullYear();
 
 const CrearUsuarioFormSchema = z.object({
     dni: z.string({
@@ -436,4 +437,96 @@ export async function borrarPlanEstudio(plan: PlanEstudio) {
     }
     revalidatePath('/gestion-planes');
     redirect('/gestion-planes');
+}
+
+
+//AULAS
+const CrearAulaFormSchema = z.object({
+    materia: z.string({
+        invalid_type_error: 'Colocar al menos una materia'
+    }).min(1,{message: 'Poner una materia'}),
+    año: z.number()
+            .int()
+            .refine((val) => val === currentYear,{
+                message: "El año debe ser el actual:${ currentYear }"
+            }),
+    turno: z.enum(['Mañana', 'Tarde'])
+            .refine(
+                (val) => ['Mañana', 'Tarde']
+                .includes(val), {
+                    message: 'El turno debe ser Mañana o Tarde',
+                }),
+  });
+
+
+// MODIFICAR EN BASE A COMO ESTEN LAS TABLAS EN LA BASE DE DATOS, NO ESTA DEFINIDO AUN
+export async function crearAula(prevState: AulaState, formData: FormData){
+
+    const validatedFields = CrearAulaFormSchema.safeParse({
+        materia: formData.get('materia'),
+        turno: formData.get('turno'),
+        año: formData.get('año'),
+    });
+
+    console.log("validatedFields "+JSON.stringify(validatedFields));
+
+    if (!validatedFields.success) {
+        return {
+          errors: validatedFields.error.flatten().fieldErrors,
+          message: 'Error al crear un aula. Error en los campos.',
+        };
+    }
+
+    try {
+        const result = await sql`
+        INSERT INTO Aulas (año, turnmo, codigo)
+        VALUES (${validatedFields.data.año}, ${validatedFields.data.turno}, ${validatedFields.data.materia})
+        RETURNING Aula_ID;
+        `;
+
+        //ahora si tiene profesores o alumnos, instertarlos a las tablas intermedias
+        const aulaId = result.rows[0].Aula_ID;
+
+        const profesores = formData.getAll('profesores') as string[];
+        const alumnos = formData.getAll('alumnos') as string[];
+
+        if (profesores && Array.isArray(profesores)) {
+            for (const profesor of profesores) {
+                await sql`
+                INSERT INTO Aulas_Profesores (Aula_ID, DNI) values (${aulaId}, ${profesor}});
+                `;
+            }
+        }
+        
+        if (alumnos && Array.isArray(alumnos)) {
+            for (const alumno of alumnos) {
+                await sql`
+                INSERT INTO Aulas_Alumnos (Aula_ID, DNI) values (${aulaId}, ${alumno}});
+                `;
+            }
+        }
+        
+    } catch (error) {
+        console.error('Database Error:', error);
+        return {
+            message: 'Error en la base de datos: error al crear un plan de estudio.',
+        };
+    }
+    revalidatePath('/');
+    redirect('/gestion-planes');
+}
+
+// MODIFICAR EN BASE A COMO ESTEN LAS TABLAS EN LA BASE DE DATOS, NO ESTA DEFINIDO AUN
+export async function borrarAula(aula: Aula) {
+    try {
+        await sql`
+        DELETE FROM Aulas WHERE Aula_ID = ${aula.codigo};
+        `;
+    } catch (error) {
+        return {
+            message: 'Database Error: No se pudo borrar el plan de estudio',
+        };
+    }
+    revalidatePath('/gestion-aulas');
+    redirect('/gestion-aulas');
 }
