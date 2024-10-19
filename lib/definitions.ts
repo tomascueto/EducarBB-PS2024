@@ -76,3 +76,23 @@ export type Materia_Plan = {
     materia: Materia;
     año: string;
 };
+
+export type Aula = {
+    codigo: string;
+    materia: string;
+    turno: string;
+    año: string;
+    profesores: string[];
+    alumnos: string[];
+};
+
+export type AulaState = {
+    errors?: {
+        materia?: string[];
+        turno?: string[];
+        año?: string[];
+        profesores?: string[];
+        alumnos?: string[];
+    };
+    message?: string | null;
+};
