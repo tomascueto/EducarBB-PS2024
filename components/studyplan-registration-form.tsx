@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { X } from 'lucide-react'
+import Link from 'next/link'
 import { Materia, Materia_Plan, PlanEstudioState } from '@/lib/definitions'
 import { useFormState } from 'react-dom'
 import { crearPlan } from '@/lib/actions'
@@ -126,7 +127,9 @@ export default function StudyPlanForm({ materias }: SubjectListProps) {
       </div>
 
       <div className="flex justify-between">
-        <Button type="button" variant="outline">Cancelar</Button>
+        <Link href='/gestion-planes' className="w-full">
+          <Button type="button" variant="outline">Cancelar</Button>
+        </Link>
         <Button type="submit">Guardar Plan</Button>
       </div>
     </form>

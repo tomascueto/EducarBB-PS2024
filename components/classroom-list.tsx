@@ -52,8 +52,8 @@ export default function ClassRoomList({ aulas }: ClassRoomListProps) {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <Link href="/gestion-planes/crear">
-          <Button>Crear Nuevo Plan de Estudios</Button>
+        <Link href="/gestion-aulas/crear">
+          <Button>Crear Nueva Aula</Button>
         </Link>
       </div>
       <Table>

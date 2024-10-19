@@ -224,7 +224,9 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Subj
   
         {/* Buttons */}
         <div className="flex justify-between">
+        <Link href="/gestion-aulas" className="w-full">
           <Button type="button" variant="outline">Cancelar</Button>
+        </Link>
           <Button type="submit">Guardar Aula</Button>
         </div>
       </form>
