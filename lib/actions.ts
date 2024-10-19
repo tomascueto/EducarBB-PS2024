@@ -9,7 +9,7 @@ import crypto from 'node:crypto';
 import { SignJWT } from 'jose';
 import { NextResponse } from 'next/server';
 
-const currentYear = new Date().getFullYear();
+const currentYear = new Date().getFullYear().toString();
 
 const CrearUsuarioFormSchema = z.object({
     dni: z.string({
@@ -445,11 +445,12 @@ const CrearAulaFormSchema = z.object({
     materia: z.string({
         invalid_type_error: 'Colocar al menos una materia'
     }).min(1,{message: 'Poner una materia'}),
-    año: z.number()
-            .int()
-            .refine((val) => val === currentYear,{
-                message: "El año debe ser el actual:${ currentYear }"
-            }),
+    año: z.string({
+        invalid_type_error: 'Debe seleccionar un año'
+    })
+    .refine((val) => val === currentYear,{
+        message: "El año debe ser el actual:${ currentYear }"
+    }),
     turno: z.enum(['Mañana', 'Tarde'])
             .refine(
                 (val) => ['Mañana', 'Tarde']
@@ -461,11 +462,12 @@ const CrearAulaFormSchema = z.object({
 
 // MODIFICAR EN BASE A COMO ESTEN LAS TABLAS EN LA BASE DE DATOS, NO ESTA DEFINIDO AUN
 export async function crearAula(prevState: AulaState, formData: FormData){
-
+    console.log(formData);
+    console.log("currentYear "+currentYear);
     const validatedFields = CrearAulaFormSchema.safeParse({
         materia: formData.get('materia'),
         turno: formData.get('turno'),
-        año: formData.get('año'),
+        año: formData.get('year'),
     });
 
     console.log("validatedFields "+JSON.stringify(validatedFields));
@@ -479,21 +481,21 @@ export async function crearAula(prevState: AulaState, formData: FormData){
 
     try {
         const result = await sql`
-        INSERT INTO Aulas (año, turnmo, codigo)
+        INSERT INTO Aula (año, turno, codigo)
         VALUES (${validatedFields.data.año}, ${validatedFields.data.turno}, ${validatedFields.data.materia})
         RETURNING Aula_ID;
         `;
 
         //ahora si tiene profesores o alumnos, instertarlos a las tablas intermedias
         const aulaId = result.rows[0].Aula_ID;
-
+        console.log("aulaid "+aulaId);
         const profesores = formData.getAll('profesores') as string[];
         const alumnos = formData.getAll('alumnos') as string[];
 
         if (profesores && Array.isArray(profesores)) {
             for (const profesor of profesores) {
                 await sql`
-                INSERT INTO Aulas_Profesores (Aula_ID, DNI) values (${aulaId}, ${profesor}});
+                INSERT INTO Aulas_Usuario (Aula_ID, DNI) values (${aulaId}, ${profesor}});
                 `;
             }
         }

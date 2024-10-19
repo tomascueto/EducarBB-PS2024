@@ -36,7 +36,7 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Subj
       // Append the classroom data to FormData
       formData.append('materia', selectedMateria);
       formData.append('turno', selectedTurno);
-      formData.append('año', selectedYear);
+      formData.append('year', selectedYear);
   
       // Append selected profesores
       selectedProfesores.forEach((profesor, index) => {
@@ -92,8 +92,6 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Subj
   
           {/* Año */}
           <Input
-            id="año"
-            name="año"
             type="text"
             value={currentYear}
             readOnly
@@ -106,8 +104,8 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Subj
               <SelectValue placeholder="Turno" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="mañana">Mañana</SelectItem>
-              <SelectItem value="tarde">Tarde</SelectItem>
+              <SelectItem value="Mañana">Mañana</SelectItem>
+              <SelectItem value="Tarde">Tarde</SelectItem>
             </SelectContent>
           </Select>
         </div>
