@@ -183,7 +183,14 @@ export async function fetchPlanes() {
 export async function fetchAulas() {
   noStore();
   try {
-      const aulas = await sql<Aula>`SELECT * FROM Aula`;
+      const aulas = await sql<Aula>`SELECT 
+                                        a.Aula_ID as codigo,
+                                        m.nombre as materia,
+                                        a.turno,
+                                        a.año
+
+                                    FROM Aula a
+                                    JOIN Materia m ON a.Codigo_Materia = m.Codigo;`;
       return aulas.rows;
   } catch (error) {
       console.error('Database Error:', error)
