@@ -37,14 +37,41 @@ export async function fetchAlumnos(){
                                       JOIN 
                                           Usuario_Rol ur ON u.DNI = ur.DNI
                                       JOIN 
-                                          Roles r ON ur.Rol = r.ID;
+                                          Roles r ON ur.Rol = r.ID
                                       WHERE
-                                          r.Nombre = 'Alumno'
+                                          r.Nombre = 'Alumno';
       `;
       return user.rows;
     } catch (error) { 
       console.error('Database Error:', error);
-      throw new Error('Failed to fetch brands user.');
+      throw new Error('Error al obtener Alumnos.');
+    }
+}
+
+export async function fetchProfesores(){
+    noStore();
+    try{
+      const user = await sql<Usuario>`SELECT 
+                                          u.DNI,
+                                          u.Nombres,
+                                          u.Apellido,
+                                          u.email,
+                                          u.Contraseña,
+                                          u.FechaNacimiento,
+                                          r.Nombre AS Rol
+                                      FROM 
+                                          Usuarios u
+                                      JOIN 
+                                          Usuario_Rol ur ON u.DNI = ur.DNI
+                                      JOIN 
+                                          Roles r ON ur.Rol = r.ID
+                                      WHERE
+                                          r.Nombre = 'Docente';
+      `;
+      return user.rows;
+    } catch (error) { 
+      console.error('Database Error:', error);
+      throw new Error('Error al obtener Profesores.');
     }
 }
 
