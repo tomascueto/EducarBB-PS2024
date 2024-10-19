@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Trash2 } from "lucide-react"
+import { Trash2, GraduationCap} from "lucide-react"
 import Link  from "next/link"
 import { borrarAula } from '@/lib/actions'
 import { Aula } from '@/lib/definitions'
@@ -74,6 +74,12 @@ export default function ClassRoomList({ aulas }: ClassRoomListProps) {
               <TableCell>{aula.turno}</TableCell>
               <TableCell>{aula.año}</TableCell>
               <TableCell className="text-right">
+
+              <Link href={`/gestion-aulas/${aula.codigo}`}>
+                <Button variant="ghost" size="icon">
+                  <GraduationCap className="h-4 w-4" />
+                </Button>
+              </Link>
 
               <Button variant="ghost" size="icon" onClick={() => setDeleteClassRoom(aula)}>
                   <Trash2 className="h-4 w-4" />
