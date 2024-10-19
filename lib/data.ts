@@ -185,10 +185,10 @@ export async function fetchAulas() {
   try {
       const aulas = await sql<Aula>`SELECT 
                                         a.Aula_ID as codigo,
+                                        a.nombre,
                                         m.nombre as materia,
                                         a.turno,
                                         a.año
-
                                     FROM Aula a
                                     JOIN Materia m ON a.Codigo_Materia = m.Codigo;`;
       return aulas.rows;
