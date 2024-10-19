@@ -36,7 +36,7 @@ export default async function AdminDashboard() {
 
     return(
         <>
-            <div>Admin Dashboard</div>
+            <div>Planes de Estudio</div>
             <StudyPlanList planes={planes} />
         </>
     );
