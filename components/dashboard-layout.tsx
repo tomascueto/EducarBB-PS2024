@@ -100,17 +100,6 @@ export function DashboardLayoutComponent({ children }: { children: React.ReactNo
                     <span>Gestión Aulas</span>
                   </Link>
                 </nav>
-                <nav className="space-y-2 p-4">
-                  {['Section 1', 'Section 2', 'Section 3', 'Section 4', 'Section 5'].map((section, index) => (
-                    <Link 
-                      key={index} 
-                      href="#" 
-                      className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-accent"
-                    >
-                      <span>{section}</span>
-                    </Link>
-                  ))}
-                </nav>
               </ScrollArea>
               <Button variant="ghost" className="m-4 flex items-center space-x-2" onClick={logout}>
                 <LogOut className="h-4 w-4" />

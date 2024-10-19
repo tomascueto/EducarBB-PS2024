@@ -13,7 +13,4 @@ export default async function AdminDashboard() {
             <UserList usuarios={usuarios} />
         </>
     );
-
-
-
 }

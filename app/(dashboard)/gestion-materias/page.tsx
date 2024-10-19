@@ -13,7 +13,4 @@ export default async function AdminDashboard() {
             <SubjectList materias={materias} />
         </>
     );
-
-
-
 }
