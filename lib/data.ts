@@ -21,6 +21,33 @@ export async function fetchUsuarios() {
     }
 }
 
+export async function fetchAlumnos(){
+    noStore();
+    try{
+      const user = await sql<Usuario>`SELECT 
+                                          u.DNI,
+                                          u.Nombres,
+                                          u.Apellido,
+                                          u.email,
+                                          u.Contraseña,
+                                          u.FechaNacimiento,
+                                          r.Nombre AS Rol
+                                      FROM 
+                                          Usuarios u
+                                      JOIN 
+                                          Usuario_Rol ur ON u.DNI = ur.DNI
+                                      JOIN 
+                                          Roles r ON ur.Rol = r.ID;
+                                      WHERE
+                                          r.Nombre = 'Alumno'
+      `;
+      return user.rows;
+    } catch (error) { 
+      console.error('Database Error:', error);
+      throw new Error('Failed to fetch brands user.');
+    }
+}
+
 export async function fetchUsuariosConRoles() {
     noStore();
     try{

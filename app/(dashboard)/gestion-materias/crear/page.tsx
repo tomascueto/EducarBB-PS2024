@@ -1,6 +1,6 @@
 import SubjectRegistrationForm from "@/components/subject-registration-form";
 
-export default function UserCreationDashboard(){
+export default function SubjectCreationDashboard(){
     return(
         <SubjectRegistrationForm />
     )
