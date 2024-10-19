@@ -24,7 +24,7 @@ export default async function GestionAulas() {
     ]
 
     return<>
-        <div>Gestion de Aulas</div>;
+        <div>Gestion de Aulas</div>
         <ClassRoomList aulas={aulas} />
     </>
 }
