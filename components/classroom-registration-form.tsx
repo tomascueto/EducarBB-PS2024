@@ -13,7 +13,7 @@ import { X } from "lucide-react"
 import { Card, CardContent } from "./ui/card"
 
 
-interface SubjectListProps {
+interface ClassroomListProps {
     materias: Materia[];
     profesores: Usuario[];
     alumnos: Usuario[];
@@ -22,29 +22,31 @@ interface SubjectListProps {
 // Get the current year
 const currentYear = new Date().getFullYear().toString();
 
-export default function RegistrationForm({ materias, profesores, alumnos }: SubjectListProps) {
+export default function RegistrationForm({ materias, profesores, alumnos }: ClassroomListProps) {
   
     const [selectedMateria, setSelectedMateria] = useState('')
     const [selectedYear] = useState(currentYear) // Default to the current year, no need for setSelectedYear
     const [selectedTurno, setSelectedTurno] = useState('')
-    const [selectedProfesores, setSelectedProfesores] = useState<Usuario[]>([])
-    const [selectedAlumnos, setSelectedAlumnos] = useState<Usuario[]>([])
-  
+    const [selectedProfesor, setSelectedProfesor] = useState('')
+    const [selectedAlumno, setSelectedAlumno] = useState('')
+    const [profesoresList, setProfesoresList] = useState<Array<Usuario>>([])
+    const [alumnosList, setAlumnosList] = useState<Array<Usuario>>([])
+
     const initialState: AulaState = { errors: {}, message: "" };
     const [state, formAction] = useFormState<AulaState, FormData>(async (state, formData) => {
       
-      // Append the classroom data to FormData
+      // Append the classroom data to FormData\
       formData.append('materia', selectedMateria);
       formData.append('turno', selectedTurno);
       formData.append('year', selectedYear);
   
       // Append selected profesores
-      selectedProfesores.forEach((profesor, index) => {
+      profesoresList.forEach((profesor, index) => {
         formData.append(`profesores[${index}][dni]`, profesor.dni);
       });
   
       // Append selected alumnos
-      selectedAlumnos.forEach((alumno, index) => {
+      alumnosList.forEach((alumno, index) => {
         formData.append(`alumnos[${index}][dni]`, alumno.dni);
       });
   
@@ -52,30 +54,53 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Subj
       return await crearAula(state, formData);
     }, initialState);
   
-    const addProfesor = (dni: string) => {
-      const profesor = profesores.find(p => p.dni === dni)
-      if (profesor) {
-        setSelectedProfesores([...selectedProfesores, profesor])
+    const addProfesor = () => {
+      if (selectedProfesor) {
+        const profesor = profesores.find(p => p.dni === selectedProfesor)
+        if (profesor) {
+          setProfesoresList([...profesoresList, profesor])
+          setSelectedProfesor('')
+        }
       }
     }
-  
+
     const removeProfesor = (dni: string) => {
-      setSelectedProfesores(selectedProfesores.filter(p => p.dni !== dni))
+      setProfesoresList(profesoresList.filter(p => p.dni !== dni))
     }
   
-    const addAlumno = (dni: string) => {
-      const alumno = alumnos.find(a => a.dni === dni)
-      if (alumno) {
-        setSelectedAlumnos([...selectedAlumnos, alumno])
-      }
+    
+    const addAlumno = () => {
+      if (selectedAlumno) {
+        const alumno = alumnos.find(a => a.dni === selectedAlumno)
+        if (alumno) {
+          setAlumnosList([...alumnosList, alumno])
+          setSelectedAlumno('')
+        }}
     }
   
     const removeAlumno = (dni: string) => {
-      setSelectedAlumnos(selectedAlumnos.filter(a => a.dni !== dni))
+      setAlumnosList(alumnosList.filter(a => a.dni !== dni))
     }
   
     return (
       <form action={formAction} className="max-w-2xl mx-auto p-6 space-y-6">
+        
+        {/* Nombre */}
+        <Input
+          id="nombre" 
+          name="nombre"
+          aria-describedby="nombre-error"
+          type="text"
+          placeholder="Nombre del plan"
+        />
+        <div id="nombre-error" aria-live="polite" aria-atomic="true">
+          {state.errors?.nombre &&
+            state.errors.nombre.map((error: string) => (
+              <p className="mt-2 text-sm text-red-500" key={error}>
+                {error}
+              </p>
+          ))}
+        </div>
 
         {/* Materia */}
         <div className="flex space-x-4">
@@ -97,7 +122,7 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Subj
             readOnly
             className="w-[100px]"
           />
-  
+
           {/* Turno */}
           <Select value={selectedTurno} onValueChange={setSelectedTurno}>
             <SelectTrigger className="w-[100px]">
@@ -112,12 +137,7 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Subj
   
         {/* Profesores */}
         <div className="flex space-x-4">
-          <Select value={selectedProfesores[0]?.dni} onValueChange={dni => {
-            const profesor = profesores.find(p => p.dni === dni);
-            if (profesor) {
-              setSelectedProfesores([profesor]);
-            }
-          }}>
+          <Select value={selectedProfesor} onValueChange={setSelectedProfesor}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Seleccionar Profesor" />
             </SelectTrigger>
@@ -127,7 +147,7 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Subj
               ))}
             </SelectContent>
           </Select>
-          <Button type="button" onClick={() => addProfesor(selectedProfesores[0]?.dni)} className="h-[38px]">
+          <Button type="button" onClick={addProfesor} className="h-[38px]">
             +
           </Button>
         </div>
@@ -135,9 +155,9 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Subj
         {/* Display de profesores seleccionados */}
         <Card aria-describedby="profesores-error">
           <CardContent className="p-4">
-            {selectedProfesores.length > 0 ? (
+            {profesoresList.length > 0 ? (
               <ul className="space-y-2">
-                {selectedProfesores.map(prof => (
+                {profesoresList.map(prof => (
                   <li key={prof.dni} className="flex justify-between items-center">
                     <span>{prof.dni} - {prof.nombres} {prof.apellido}</span>
                     <Button variant="ghost" size="icon" onClick={() => removeProfesor(prof.dni)}>
@@ -155,12 +175,7 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Subj
 
         {/* Alumnos */}
         <div className="flex space-x-4">
-          <Select value={selectedAlumnos[0]?.dni} onValueChange={dni => {
-            const alumno = alumnos.find(a => a.dni === dni);
-            if (alumno) {
-              setSelectedAlumnos([alumno]);
-            }
-          }}>
+          <Select value={selectedAlumno} onValueChange={setSelectedAlumno}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Seleccionar Alumno" />
             </SelectTrigger>
@@ -170,7 +185,7 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Subj
               ))}
             </SelectContent>
           </Select>
-          <Button type="button" onClick={() => addAlumno(selectedAlumnos[0]?.dni)} className="h-[38px]">
+          <Button type="button" onClick={addAlumno} className="h-[38px]">
             +
           </Button>
         </div>
@@ -178,9 +193,9 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Subj
         {/* Display de Alumnos seleccionados */}
         <Card aria-describedby="alumnos-error">
           <CardContent className="p-4">
-            {selectedAlumnos.length > 0 ? (
+            {alumnosList.length > 0 ? (
               <ul className="space-y-2">
-                {selectedAlumnos.map(alum => (
+                {alumnosList.map(alum => (
                   <li key={alum.dni} className="flex justify-between items-center">
                     <span>{alum.dni} - {alum.nombres} {alum.apellido}</span>
                     <Button variant="ghost" size="icon" onClick={() => removeAlumno(alum.dni)}>

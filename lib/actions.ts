@@ -442,6 +442,9 @@ export async function borrarPlanEstudio(plan: PlanEstudio) {
 
 //AULAS
 const CrearAulaFormSchema = z.object({
+    nombre: z.string({
+        invalid_type_error: 'Colocar un nombre para el aula'
+    }).min(1,{message: 'Poner una nombre para el aula'}),
     materia: z.string({
         invalid_type_error: 'Colocar al menos una materia'
     }).min(1,{message: 'Poner una materia'}),
@@ -457,17 +460,22 @@ const CrearAulaFormSchema = z.object({
                 .includes(val), {
                     message: 'El turno debe ser Mañana o Tarde',
                 }),
+    profesores: z.array(z.string()).optional(),
+    alumnos: z.array(z.string()).optional(),
   });
 
 
 // MODIFICAR EN BASE A COMO ESTEN LAS TABLAS EN LA BASE DE DATOS, NO ESTA DEFINIDO AUN
 export async function crearAula(prevState: AulaState, formData: FormData){
     console.log(formData);
-    console.log("currentYear "+currentYear);
+
     const validatedFields = CrearAulaFormSchema.safeParse({
+        nombre: formData.get('nombre'),
         materia: formData.get('materia'),
         turno: formData.get('turno'),
         año: formData.get('year'),
+        profesores: formData.getAll('profesores') as string[],
+        alumnos: formData.getAll('alumnos') as string[],
     });
 
     console.log("validatedFields "+JSON.stringify(validatedFields));
@@ -479,31 +487,38 @@ export async function crearAula(prevState: AulaState, formData: FormData){
         };
     }
 
+    const { 
+        nombre,
+        materia,
+        turno,
+        año,
+        profesores,
+        alumnos,
+    } = validatedFields.data;
+
     try {
         const result = await sql`
-        INSERT INTO Aula (año, turno, codigo)
-        VALUES (${validatedFields.data.año}, ${validatedFields.data.turno}, ${validatedFields.data.materia})
+        INSERT INTO Aula (Nombre, Año, Turno, Codigo_Materia)
+        VALUES (${nombre}, ${año}, ${turno}, ${materia})
         RETURNING Aula_ID;
         `;
 
-        //ahora si tiene profesores o alumnos, instertarlos a las tablas intermedias
-        const aulaId = result.rows[0].Aula_ID;
+        //Si tiene profesores o alumnos, instertarlos a las tablas intermedias
+        const aulaId = result.rows[0].aula_id;
         console.log("aulaid "+aulaId);
-        const profesores = formData.getAll('profesores') as string[];
-        const alumnos = formData.getAll('alumnos') as string[];
 
         if (profesores && Array.isArray(profesores)) {
-            for (const profesor of profesores) {
+            for (const profesorDNI of profesores) {
                 await sql`
-                INSERT INTO Aulas_Usuario (Aula_ID, DNI) values (${aulaId}, ${profesor}});
+                INSERT INTO Aula_Usuario (Aula_ID, DNI) values (${aulaId}, ${profesorDNI}});
                 `;
             }
         }
         
         if (alumnos && Array.isArray(alumnos)) {
-            for (const alumno of alumnos) {
+            for (const alumnoDNI of alumnos) {
                 await sql`
-                INSERT INTO Aulas_Alumnos (Aula_ID, DNI) values (${aulaId}, ${alumno}});
+                INSERT INTO Aula_Usuario (Aula_ID, DNI) values (${aulaId}, ${alumnoDNI}});
                 `;
             }
         }
@@ -514,8 +529,8 @@ export async function crearAula(prevState: AulaState, formData: FormData){
             message: 'Error en la base de datos: error al crear un plan de estudio.',
         };
     }
-    revalidatePath('/');
-    redirect('/gestion-planes');
+    revalidatePath('/gestion-aulas');
+    redirect('/gestion-aulas');
 }
 
 // MODIFICAR EN BASE A COMO ESTEN LAS TABLAS EN LA BASE DE DATOS, NO ESTA DEFINIDO AUN

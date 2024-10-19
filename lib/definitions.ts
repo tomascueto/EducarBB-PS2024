@@ -88,6 +88,7 @@ export type Aula = {
 
 export type AulaState = {
     errors?: {
+        nombre?: string[];
         materia?: string[];
         turno?: string[];
         año?: string[];
