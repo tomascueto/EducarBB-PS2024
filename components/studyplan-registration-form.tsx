@@ -63,7 +63,8 @@ export default function StudyPlanForm({ materias }: SubjectListProps) {
             <SelectValue placeholder="Seleccionar Materia" />
           </SelectTrigger>
           <SelectContent>
-            {materias.map(materia => (
+            {materias.filter(materia => !planSubjects.some(materiaPlan => materiaPlan.materia.codigo === materia.codigo))
+              .map(materia => (
               <SelectItem key={materia.codigo} value={materia.codigo}>{materia.codigo}/{materia.nombre}</SelectItem>
             ))}
           </SelectContent>
