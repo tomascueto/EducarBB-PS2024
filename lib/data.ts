@@ -105,7 +105,7 @@ export async function fetchUsuariosConRoles() {
 export async function fetchUsuarioPorDni(dni: string) {
     noStore();
     try {
-      const user = await sql<Usuario>`SELECT dni, nombres, apellido, email, TO_CHAR(fechanacimiento, 'DD/MM/YYYY') as fechanacimiento FROM usuarios WHERE dni = ${dni}`
+      const user = await sql<Usuario>`SELECT dni, nombres, apellido, email, TO_CHAR(fechanacimiento, 'YYYY-MM-DD') as fechanacimiento FROM usuarios WHERE dni = ${dni}`
     
       if (user.rows.length === 0) {
         throw new Error(`No se encontró usuario con DNI: ${dni}`);
@@ -127,7 +127,7 @@ export async function fetchUsuarioConRolPorDni(dni: string) {
                                       u.Apellido,
                                       u.email,
                                       u.Contraseña,
-                                      TO_CHAR(fechanacimiento, 'DD/MM/YYYY') as fechanacimiento,
+                                      TO_CHAR(fechanacimiento, 'YYYY-MM-DD') as fechanacimiento,
                                       r.Nombre AS Rol
                                     FROM
                                       Usuarios u

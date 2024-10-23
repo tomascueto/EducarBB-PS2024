@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { Usuario, UsuarioState, AuthError, Materia, MateriaState, PlanEstudioState, PlanEstudio, Aula, AulaState } from './definitions';
+import { Usuario, UsuarioState, AuthError, Materia, MateriaState, PlanEstudioState, PlanEstudio, Aula, AulaState, UsuarioModificationState } from './definitions';
 import crypto from 'node:crypto';
 import { SignJWT } from 'jose';
 import { NextResponse } from 'next/server';
@@ -49,6 +49,9 @@ const ModificarUsuarioFormSchema = z.object({
     email: z.string({
         invalid_type_error: 'Poner un email'
     }).min(1,{message: 'Poner un email'}),
+    fechanacimiento: z.string({
+        invalid_type_error: 'Poner una fecha de nacimiento'
+    }).min(1,{message: 'Poner una fecha de nacimiento'}),
     contraseña: z.string().optional()
 });
 
@@ -91,7 +94,7 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
         rol
     } = validatedFields.data;
     const contraseñaHasheada = crypto.hash('sha256',contraseña); 
-
+    
     try {
         await sql`
         INSERT INTO usuarios (dni, nombres, apellido, email, contraseña, fechanacimiento)
@@ -113,7 +116,7 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
 }
 
 
-export async function modificarUsuario(prevState: UsuarioState, formData: FormData) {
+export async function modificarUsuario(prevState: UsuarioModificationState, formData: FormData) {
 
     const validatedFields = ModificarUsuarioFormSchema.safeParse({
         prevDni: formData.get('prevDni'),
@@ -121,6 +124,7 @@ export async function modificarUsuario(prevState: UsuarioState, formData: FormDa
         nombres: formData.get('nombres'),
         apellido: formData.get('apellido'),
         email: formData.get('email'),
+        fechanacimiento: formData.get('fechanacimiento'),
         contraseña: formData.get('contrasenia')
     });
 
@@ -137,6 +141,7 @@ export async function modificarUsuario(prevState: UsuarioState, formData: FormDa
         nombres,
         apellido, 
         email, 
+        fechanacimiento,
         contraseña
     } = validatedFields.data;
 
@@ -155,6 +160,7 @@ export async function modificarUsuario(prevState: UsuarioState, formData: FormDa
                 nombres = ${nombres}, 
                 apellido = ${apellido},
                 email = ${email}, 
+                fechanacimiento = ${fechanacimiento},
                 contraseña = ${contraseñaHasheada}
               WHERE dni = ${prevDni}
             `
@@ -165,7 +171,8 @@ export async function modificarUsuario(prevState: UsuarioState, formData: FormDa
                 dni = ${dni}, 
                 nombres = ${nombres}, 
                 apellido = ${apellido},
-                email = ${email}
+                email = ${email},
+                fechanacimiento = ${fechanacimiento}
               WHERE dni = ${prevDni}
             `
           }

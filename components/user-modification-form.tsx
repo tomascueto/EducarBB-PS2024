@@ -87,11 +87,19 @@ export default function ModificationForm({ usuario }: UserListProps) {
                 id="fechanacimiento"
                 name="fechanacimiento"
                 defaultValue={usuario.fechanacimiento}
-                type="text"
+                type="date"
                 className="w-full"
-                readOnly
                 aria-describedby="fechanacimiento-error"
               />
+            </div>
+
+            <div id="fechanacimiento-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.fechanacimiento &&
+                state.errors.fechanacimiento.map((error: string) => (
+                  <p className="mt-2 text-sm text-red-500" key={error}>
+                    {error}
+                  </p>
+              ))}
             </div>
 
             <div>
