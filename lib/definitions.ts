@@ -79,11 +79,12 @@ export type Materia_Plan = {
 
 export type Aula = {
     codigo: string;
+    nombre: string;
     materia: string;
     turno: string;
     año: string;
-    profesores: string[];
-    alumnos: string[];
+    profesores?: string[];
+    alumnos?: string[];
 };
 
 export type AulaState = {

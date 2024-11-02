@@ -91,7 +91,7 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Clas
           name="nombre"
           aria-describedby="nombre-error"
           type="text"
-          placeholder="Nombre del plan"
+          placeholder="Nombre del Aula"
         />
         <div id="nombre-error" aria-live="polite" aria-atomic="true">
           {state.errors?.nombre &&
