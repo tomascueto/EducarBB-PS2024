@@ -14,13 +14,10 @@ import { Card, CardContent } from "./ui/card"
 
 
 interface ClassroomListProps {
-  aulaId: string;
+    aulaId: string;
     profesores: Usuario[];
     alumnos: Usuario[];
   }
-
-// Get the current year
-const currentYear = new Date().getFullYear().toString();
 
 export default function ModificationForm({ aulaId, profesores, alumnos }: ClassroomListProps) {
   
@@ -28,12 +25,12 @@ export default function ModificationForm({ aulaId, profesores, alumnos }: Classr
     const [selectedAlumno, setSelectedAlumno] = useState('')
     const [profesoresList, setProfesoresList] = useState<Array<Usuario>>([])
     const [alumnosList, setAlumnosList] = useState<Array<Usuario>>([])
-
     const initialState: AulaState = { errors: {}, message: "" };
     const [state, formAction] = useFormState<AulaState, FormData>(async (state, formData) => {
       
       // Append de id
-      formData.append('id_aula', aulaId);
+      console.log("ID "+aulaId)
+      formData.append('aula_id', aulaId);
 
       // Append selected profesores
       profesoresList.forEach((profesor, index) => {

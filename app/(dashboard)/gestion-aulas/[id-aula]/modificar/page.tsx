@@ -7,7 +7,6 @@ export default async function ClassRoomModificationDashboard({ params }: { param
     const { 'id-aula': aulaId } = params;
     const alumnos: Usuario[] = await fetchAlumnos();
     const profesores: Usuario[] = await fetchProfesores();
-    console.log(aulaId)
 
-    return <ModificationForm aulaId={aulaId} alumnos={alumnos} profesores={profesores}/>;
+    return <ModificationForm aulaId={aulaId} profesores={profesores} alumnos={alumnos}/>;
 }

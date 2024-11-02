@@ -35,7 +35,7 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Clas
     const initialState: AulaState = { errors: {}, message: "" };
     const [state, formAction] = useFormState<AulaState, FormData>(async (state, formData) => {
       
-      // Append the classroom data to FormData\
+      // Append the classroom data to FormData
       formData.append('materia', selectedMateria);
       formData.append('turno', selectedTurno);
       formData.append('year', selectedYear);
