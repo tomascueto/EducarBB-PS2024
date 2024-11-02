@@ -198,21 +198,47 @@ export async function fetchAulas() {
   }
 }
 
-export async function fetchAulaById(id: string) {
+export async function fetchAulaById(aulaId: string) {
   noStore();
   try {
-      const aula = await sql<Aula>`SELECT 
-                                        a.Aula_ID as codigo,
-                                        a.nombre,
-                                        m.nombre as materia,
-                                        a.turno,
-                                        a.año
-                                    FROM Aula a
-                                    JOIN Materia m ON a.Codigo_Materia = m.Codigo
-                                    WHERE a.Aula_ID = ${id};`;
-      return aula.rows[0];
+      const result = await sql<Aula>`SELECT 
+                                      a.Aula_ID as codigo,
+                                      a.nombre,
+                                      m.nombre as materia,
+                                      a.turno,
+                                      a.año
+                                  FROM Aula a
+                                  JOIN Materia m ON a.Codigo_Materia = m.Codigo
+                                  WHERE a.Aula_ID = ${aulaId};`;
+      const aula: Aula = result.rows[0];
+
+      const resultProfesores = await sql<Usuario>`SELECT
+                                                      u.DNI,
+                                                      u.Nombres,
+                                                      u.Apellido
+                                                  FROM
+                                                      Usuarios u
+                                                  JOIN
+                                                      Usuario_Rol ur ON u.DNI = ur.DNI
+                                                  JOIN
+                                                      Roles r ON ur.Rol = r.ID
+                                                  JOIN
+                                                      Aula_Usuario au ON u.DNI = au.DNI
+                                                  WHERE
+                                                      au.Aula_ID = ${aulaId} AND r.Nombre = 'Docente';`;
+      
+      // if(resultProfesores.rows.length === 0){
+      //   aula.profesores = [];
+      // }
+      aula.profesores = resultProfesores.rows;
+      aula.alumnos = [];
+      console.log(resultProfesores.rows);
+
+      console.log("aulaFetch", JSON.stringify(aula));
+
+      return aula;
   } catch (error) {
       console.error('Database Error:', error)
-      throw new Error('Failed to fetch aulas')
+      throw new Error('Failed to fetch aula')
   }
 }

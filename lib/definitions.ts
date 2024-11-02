@@ -84,8 +84,8 @@ export type Aula = {
     materia: string;
     turno: string;
     año: string;
-    profesores?: string[];
-    alumnos?: string[];
+    profesores: Usuario[];
+    alumnos: Usuario[];
 };
 
 export type AulaState = {

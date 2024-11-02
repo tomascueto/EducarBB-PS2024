@@ -42,12 +42,12 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Clas
   
       // Append selected profesores
       profesoresList.forEach((profesor, index) => {
-        formData.append(`profesores[${index}][dni]`, profesor.dni);
+        formData.append(`profesores`, profesor.dni);
       });
   
       // Append selected alumnos
       alumnosList.forEach((alumno, index) => {
-        formData.append(`alumnos[${index}][dni]`, alumno.dni);
+        formData.append(`alumnos`, alumno.dni);
       });
   
       // Call the action to create the classroom

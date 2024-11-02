@@ -485,8 +485,8 @@ export async function crearAula(prevState: AulaState, formData: FormData){
         materia: formData.get('materia'),
         turno: formData.get('turno'),
         año: formData.get('year'),
-        profesores: formData.getAll('profesores') as string[],
-        alumnos: formData.getAll('alumnos') as string[],
+        profesores: formData.getAll('profesores'),
+        alumnos: formData.getAll('alumnos'),
     });
 
     console.log("validatedFields "+JSON.stringify(validatedFields));
@@ -516,12 +516,11 @@ export async function crearAula(prevState: AulaState, formData: FormData){
 
         //Si tiene profesores o alumnos, instertarlos a las tablas intermedias
         const aulaId = result.rows[0].aula_id;
-        console.log("aulaid "+aulaId);
 
         if (profesores && Array.isArray(profesores)) {
             for (const profesorDNI of profesores) {
                 await sql`
-                INSERT INTO Aula_Usuario (Aula_ID, DNI) values (${aulaId}, ${profesorDNI}});
+                INSERT INTO Aula_Usuario (Aula_ID, DNI) values (${aulaId}, ${profesorDNI});
                 `;
             }
         }
@@ -529,7 +528,7 @@ export async function crearAula(prevState: AulaState, formData: FormData){
         if (alumnos && Array.isArray(alumnos)) {
             for (const alumnoDNI of alumnos) {
                 await sql`
-                INSERT INTO Aula_Usuario (Aula_ID, DNI) values (${aulaId}, ${alumnoDNI}});
+                INSERT INTO Aula_Usuario (Aula_ID, DNI) values (${aulaId}, ${alumnoDNI});
                 `;
             }
         }
@@ -547,11 +546,11 @@ export async function crearAula(prevState: AulaState, formData: FormData){
 export async function modificarAula(prevState: AulaState, formData: FormData) {
 
     console.log(formData);
-    
+
     const validatedFields = ModificarAulaFormSchema.safeParse({
         aulaId: formData.get('aula_id'),
-        profesores: formData.getAll('profesores') as string[],
-        alumnos: formData.getAll('alumnos') as string[],
+        profesores: formData.getAll('profesores'),
+        alumnos: formData.getAll('alumnos'),
     });
 
     console.log("validatedFields "+JSON.stringify(validatedFields));
@@ -573,7 +572,11 @@ export async function modificarAula(prevState: AulaState, formData: FormData) {
         if (profesores && Array.isArray(profesores)) {
             for (const profesorDNI of profesores) {
                 await sql`
-                INSERT INTO Aula_Usuario (Aula_ID, DNI) values (${aulaId}, ${profesorDNI}});
+                INSERT INTO Aula_Usuario (Aula_ID, DNI)
+                SELECT ${aulaId}, ${profesorDNI}
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM Aula_Usuario WHERE Aula_ID = ${aulaId} AND DNI = ${profesorDNI}
+                );
                 `;
             }
         }
@@ -581,7 +584,11 @@ export async function modificarAula(prevState: AulaState, formData: FormData) {
         if (alumnos && Array.isArray(alumnos)) {
             for (const alumnoDNI of alumnos) {
                 await sql`
-                INSERT INTO Aula_Usuario (Aula_ID, DNI) values (${aulaId}, ${alumnoDNI}});
+                INSERT INTO Aula_Usuario (Aula_ID, DNI)
+                SELECT ${aulaId}, ${alumnoDNI}
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM Aula_Usuario WHERE Aula_ID = ${aulaId} AND DNI = ${alumnoDNI}
+                );
                 `;
             }
         }
@@ -599,11 +606,11 @@ export async function modificarAula(prevState: AulaState, formData: FormData) {
 export async function borrarAula(aula: Aula) {
     try {
         await sql`
-        DELETE FROM Aulas WHERE Aula_ID = ${aula.codigo};
+        DELETE FROM Aula WHERE Aula_ID = ${aula.codigo};
         `;
     } catch (error) {
         return {
-            message: 'Database Error: No se pudo borrar el plan de estudio',
+            message: 'Database Error: No se pudo borrar el aula',
         };
     }
     revalidatePath('/gestion-aulas');

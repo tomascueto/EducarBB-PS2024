@@ -14,32 +14,32 @@ import { Card, CardContent } from "./ui/card"
 
 
 interface ClassroomListProps {
-    aulaId: string;
+    aula: Aula;
     profesores: Usuario[];
     alumnos: Usuario[];
   }
 
-export default function ModificationForm({ aulaId, profesores, alumnos }: ClassroomListProps) {
+export default function ModificationForm({ aula, profesores, alumnos }: ClassroomListProps) {
   
     const [selectedProfesor, setSelectedProfesor] = useState('')
     const [selectedAlumno, setSelectedAlumno] = useState('')
-    const [profesoresList, setProfesoresList] = useState<Array<Usuario>>([])
-    const [alumnosList, setAlumnosList] = useState<Array<Usuario>>([])
+    const [profesoresList, setProfesoresList] = useState<Array<Usuario>>(aula.profesores)
+    const [alumnosList, setAlumnosList] = useState<Array<Usuario>>(aula.alumnos)
     const initialState: AulaState = { errors: {}, message: "" };
+
     const [state, formAction] = useFormState<AulaState, FormData>(async (state, formData) => {
       
       // Append de id
-      console.log("ID "+aulaId)
-      formData.append('aula_id', aulaId);
+      formData.append('aula_id', aula.codigo);
 
       // Append selected profesores
       profesoresList.forEach((profesor, index) => {
-        formData.append(`profesores[${index}][dni]`, profesor.dni);
+        formData.append(`profesores`, profesor.dni);
       });
   
       // Append selected alumnos
       alumnosList.forEach((alumno, index) => {
-        formData.append(`alumnos[${index}][dni]`, alumno.dni);
+        formData.append(`alumnos`, alumno.dni);
       });
   
       // Call the action to create the classroom
@@ -71,6 +71,7 @@ export default function ModificationForm({ aulaId, profesores, alumnos }: Classr
     }
   
     const removeAlumno = (dni: string) => {
+      
       setAlumnosList(alumnosList.filter(a => a.dni !== dni))
     }
   
