@@ -81,7 +81,7 @@ export default function ListaDeAulas({ aulas }: ListaDeAulasProps) {
 
                         <Link href={`/gestion-aulas/${aula.codigo}`}>
                             <Button variant="ghost" size="sm">
-                            Editar
+                            Acceder
                             </Button>
                         </Link>
 

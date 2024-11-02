@@ -197,3 +197,22 @@ export async function fetchAulas() {
       throw new Error('Failed to fetch aulas')
   }
 }
+
+export async function fetchAulaById(id: string) {
+  noStore();
+  try {
+      const aula = await sql<Aula>`SELECT 
+                                        a.Aula_ID as codigo,
+                                        a.nombre,
+                                        m.nombre as materia,
+                                        a.turno,
+                                        a.año
+                                    FROM Aula a
+                                    JOIN Materia m ON a.Codigo_Materia = m.Codigo
+                                    WHERE a.Aula_ID = ${id};`;
+      return aula.rows[0];
+  } catch (error) {
+      console.error('Database Error:', error)
+      throw new Error('Failed to fetch aulas')
+  }
+}
