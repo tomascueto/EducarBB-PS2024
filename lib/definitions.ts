@@ -29,6 +29,7 @@ export type UsuarioModificationState = {
         prevDni?: string[];
         email?: string[];
         contraseña?: string[];
+        fechanacimiento?: string[];
     };
     message?: string | null;
 };
