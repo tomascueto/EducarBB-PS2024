@@ -233,7 +233,7 @@ export async function authenticate(prevState: string | undefined, formData: Form
         `;
     
         if (result.rowCount === 0) {
-            return { success: false, error: 'Credenciales incorrectas' };
+            return { success: false, error: 'Email no registrado.' };
         }
     
         const usuario = {
@@ -461,12 +461,16 @@ const CrearAulaFormSchema = z.object({
     .refine((val) => val === currentYear,{
         message: "El año debe ser el actual:${ currentYear }"
     }),
-    turno: z.enum(['Mañana', 'Tarde'])
-            .refine(
-                (val) => ['Mañana', 'Tarde']
-                .includes(val), {
-                    message: 'El turno debe ser Mañana o Tarde',
-                }),
+    turno: z.string()
+    .refine(val => val === 'Mañana' || val === 'Tarde', {
+      message: 'Debe seleccionar un turno',
+    }),
+    profesores: z.array(z.string()).optional(),
+    alumnos: z.array(z.string()).optional(),
+  });
+
+const ModificarAulaFormSchema = z.object({
+    aulaId: z.string(),
     profesores: z.array(z.string()).optional(),
     alumnos: z.array(z.string()).optional(),
   });
@@ -540,7 +544,58 @@ export async function crearAula(prevState: AulaState, formData: FormData){
     redirect('/gestion-aulas');
 }
 
-// MODIFICAR EN BASE A COMO ESTEN LAS TABLAS EN LA BASE DE DATOS, NO ESTA DEFINIDO AUN
+export async function modificarAula(prevState: AulaState, formData: FormData) {
+
+    console.log(formData);
+    
+    const validatedFields = ModificarAulaFormSchema.safeParse({
+        aulaId: formData.get('aula_id'),
+        profesores: formData.getAll('profesores') as string[],
+        alumnos: formData.getAll('alumnos') as string[],
+    });
+
+    console.log("validatedFields "+JSON.stringify(validatedFields));
+
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: 'Error al modificar un aula. Error en los campos.',
+        };
+    }
+
+    const {
+        aulaId,
+        profesores,
+        alumnos,
+    } = validatedFields.data;
+
+    try {
+        if (profesores && Array.isArray(profesores)) {
+            for (const profesorDNI of profesores) {
+                await sql`
+                INSERT INTO Aula_Usuario (Aula_ID, DNI) values (${aulaId}, ${profesorDNI}});
+                `;
+            }
+        }
+        
+        if (alumnos && Array.isArray(alumnos)) {
+            for (const alumnoDNI of alumnos) {
+                await sql`
+                INSERT INTO Aula_Usuario (Aula_ID, DNI) values (${aulaId}, ${alumnoDNI}});
+                `;
+            }
+        }
+    } catch (error) {
+        console.error('Database Error:', error);
+        return {
+            message: 'Error en la base de datos: error al modificar el usuario.',
+        };
+    }
+
+    revalidatePath('/gestion-aulas');
+    redirect('/gestion-aulas');
+}
+
 export async function borrarAula(aula: Aula) {
     try {
         await sql`
