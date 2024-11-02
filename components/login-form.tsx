@@ -45,18 +45,19 @@ export function LoginForm() {
           });
             window.location.href = '/home';
           } else {
-            if (error !== undefined)
-              setErrorMessage(typeof error === 'string' ? error : 'Hubo un error desconocido.');
+            if (error !== undefined){
+              setErrorMessage(typeof error === 'string' ? error : 'Email o contraseña inválidos.');
+            }
           }
         } else {
           if ('error' in response) {
             console.log(response.error);
           }
-          setErrorMessage('Hubo un error al autenticar.');
+          setErrorMessage(response.error);
         }
       } catch (err) {
         console.log(err);
-        setErrorMessage('Hubo un error al autenticar.');
+        setErrorMessage('Hubo un error inesperado.');
       } finally {
         setIsLoading(false);
       }
@@ -75,6 +76,9 @@ export function LoginForm() {
       </CardHeader>
       <CardContent className="grid gap-4">
         <form onSubmit={onSubmit}>
+          {errorMessage && (
+            <div className="text-red-500 text-center">{errorMessage}</div>
+          )}
           <div className="grid gap-2">
             <div className="grid gap-1">
               <Label htmlFor="email" className="text-sm font-medium">

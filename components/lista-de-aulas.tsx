@@ -79,7 +79,7 @@ export default function ListaDeAulas({ aulas }: ListaDeAulasProps) {
                         
                         <TableCell>
 
-                        <Link href={`/gestion-aulas/${aula.codigo}`}>
+                        <Link href={`/gestion-aulas/${aula.codigo}/modificar`}>
                             <Button variant="ghost" size="sm">
                             Editar
                             </Button>

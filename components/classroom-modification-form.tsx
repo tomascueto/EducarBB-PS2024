@@ -6,15 +6,15 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import  Link  from "next/link"
 import { useFormState } from 'react-dom';
-import { crearAula } from '@/lib/actions';
-import { Aula, AulaState, Materia, Usuario } from "@/lib/definitions"
+import { modificarAula } from '@/lib/actions';
+import { Aula, AulaState, Usuario } from "@/lib/definitions"
 import { useState } from "react"
 import { X } from "lucide-react"
 import { Card, CardContent } from "./ui/card"
 
 
 interface ClassroomListProps {
-    materias: Materia[];
+  aulaId: string;
     profesores: Usuario[];
     alumnos: Usuario[];
   }
@@ -22,11 +22,8 @@ interface ClassroomListProps {
 // Get the current year
 const currentYear = new Date().getFullYear().toString();
 
-export default function RegistrationForm({ materias, profesores, alumnos }: ClassroomListProps) {
+export default function ModificationForm({ aulaId, profesores, alumnos }: ClassroomListProps) {
   
-    const [selectedMateria, setSelectedMateria] = useState('')
-    const [selectedYear] = useState(currentYear) // Default to the current year, no need for setSelectedYear
-    const [selectedTurno, setSelectedTurno] = useState('')
     const [selectedProfesor, setSelectedProfesor] = useState('')
     const [selectedAlumno, setSelectedAlumno] = useState('')
     const [profesoresList, setProfesoresList] = useState<Array<Usuario>>([])
@@ -35,11 +32,9 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Clas
     const initialState: AulaState = { errors: {}, message: "" };
     const [state, formAction] = useFormState<AulaState, FormData>(async (state, formData) => {
       
-      // Append the classroom data to FormData\
-      formData.append('materia', selectedMateria);
-      formData.append('turno', selectedTurno);
-      formData.append('year', selectedYear);
-  
+      // Append de id
+      formData.append('id_aula', aulaId);
+
       // Append selected profesores
       profesoresList.forEach((profesor, index) => {
         formData.append(`profesores[${index}][dni]`, profesor.dni);
@@ -51,7 +46,7 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Clas
       });
   
       // Call the action to create the classroom
-      return await crearAula(state, formData);
+      return await modificarAula(state, formData);
     }, initialState);
   
     const addProfesor = () => {
@@ -84,82 +79,7 @@ export default function RegistrationForm({ materias, profesores, alumnos }: Clas
   
     return (
       <form action={formAction} className="max-w-2xl mx-auto p-6 space-y-6">
-        
-        {/* Nombre */}
-        <Input
-          id="nombre" 
-          name="nombre"
-          aria-describedby="nombre-error"
-          type="text"
-          placeholder="Nombre del Aula"
-        />
-        <div id="nombre-error" aria-live="polite" aria-atomic="true">
-          {state.errors?.nombre &&
-            state.errors.nombre.map((error: string) => (
-              <p className="mt-2 text-sm text-red-500" key={error}>
-                {error}
-              </p>
-          ))}
-        </div>
-
-        {/* Materia */}
-        <div className="flex space-x-4">
-          <Select value={selectedMateria} onValueChange={setSelectedMateria}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Seleccionar Materia" />
-            </SelectTrigger>
-            <SelectContent>
-              {materias.map(materia => (
-                <SelectItem key={materia.codigo} value={materia.codigo}>{materia.codigo} - {materia.nombre}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-  
-          {/* Año */}
-          <Input
-            type="text"
-            value={currentYear}
-            readOnly
-            className="w-[100px]"
-          />
-
-          {/* Turno */}
-          <Select value={selectedTurno} onValueChange={setSelectedTurno}>
-            <SelectTrigger className="w-[100px]">
-              <SelectValue placeholder="Turno" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Mañana">Mañana</SelectItem>
-              <SelectItem value="Tarde">Tarde</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-              
-        {/* Errores Materia, Año y Turno */}
-        <div id="materia-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.materia && (
-              <p className="mt-2 text-sm text-red-500" key="materia-error">
-                {state.errors.materia.join(', ')}
-              </p>
-            )}
-        </div>
-  
-        <div id="año-error" aria-live="polite" aria-atomic="true">
-          {state.errors?.año && (
-            <p className="mt-2 text-sm text-red-500" key="año-error">
-              {state.errors.año.join(', ')}
-            </p>
-          )}
-        </div>
-
-        <div id="turno-error" aria-live="polite" aria-atomic="true">
-          {state.errors?.turno && (
-            <p className="mt-2 text-sm text-red-500" key="turno-error">
-              {state.errors.turno.join(', ')}
-            </p>
-          )}
-        </div>
-              
+                
         {/* Profesores */}
         <div className="flex space-x-4">
           <Select value={selectedProfesor} onValueChange={setSelectedProfesor}>
