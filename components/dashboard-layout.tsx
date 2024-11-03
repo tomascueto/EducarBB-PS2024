@@ -8,8 +8,7 @@ import { ChevronLeft, ChevronRight, Home, Calendar, LogOut } from 'lucide-react'
 import Cookies from 'js-cookie'
 import {jwtVerify} from 'jose';
 
-
-async function fetchUserName(): Promise<string | null> {
+async function fetchUser(): Promise<{ nombre: string; rol: string } | null> {
   const secretKey = process.env.NEXT_PUBLIC_JWT_SECRET;
   if (!secretKey) {
     throw new Error('JWT_SECRET is not defined');
@@ -24,7 +23,8 @@ async function fetchUserName(): Promise<string | null> {
 
   try {
     const { payload } = await jwtVerify(token, SECRET_KEY);
-    return payload.id as string;
+
+    return { nombre: payload.nombre as string, rol: payload.rol as string }
   } catch (error) {
     console.error("Token verification failed:", error);
     return null;
@@ -34,13 +34,19 @@ async function fetchUserName(): Promise<string | null> {
 export function DashboardLayoutComponent({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [username, setUsername] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null)
+
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   useEffect(() => {
-    fetchUserName().then(name => setUsername(name));
+    fetchUser().then(user => {
+      if (user) {
+        setUsername(user.nombre);
+        setUserRole(user.rol);
+      }
+    });
   }, []);
-
 
 
   const logout = () =>{
@@ -80,26 +86,30 @@ export function DashboardLayoutComponent({ children }: { children: React.ReactNo
           {isSidebarOpen && (
             <>
               <ScrollArea className="flex-1">
-                <nav className="space-y-2 p-4">
+                {userRole === 'Administrador' && <nav className="space-y-2 p-4">
                   <Link href="/gestion-usuarios" className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-accent">
                     <span>Gestión Usuarios</span>
                   </Link>
                 </nav>
-                <nav className="space-y-2 p-4">
+                }
+                {userRole === 'Administrador' && <nav className="space-y-2 p-4">
                   <Link href="/gestion-materias" className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-accent">
                     <span>Gestión Materias</span>
                   </Link>
                 </nav>
-                <nav className="space-y-2 p-4">
+                }
+                {userRole === 'Administrador' && <nav className="space-y-2 p-4">
                   <Link href="/gestion-planes" className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-accent">
                     <span>Gestión Planes</span>
                   </Link>
                 </nav>
-                <nav className="space-y-2 p-4">
+                }
+                {(userRole === 'Administrador' || userRole === 'Docente') && <nav className="space-y-2 p-4">
                   <Link href="/gestion-aulas" className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-accent">
                     <span>Gestión Aulas</span>
                   </Link>
                 </nav>
+                }
               </ScrollArea>
               <Button variant="ghost" className="m-4 flex items-center space-x-2" onClick={logout}>
                 <LogOut className="h-4 w-4" />

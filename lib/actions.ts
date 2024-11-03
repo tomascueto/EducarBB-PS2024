@@ -93,7 +93,9 @@ export async function crearUsuario(prevState: UsuarioState, formData: FormData){
         fechanacimiento,
         rol
     } = validatedFields.data;
-    const contraseñaHasheada = crypto.hash('sha256',contraseña); 
+    // const contraseñaHasheada = crypto.hash('sha256',contraseña); 
+    const contraseñaHasheada = crypto.createHash('sha256').update(contraseña).digest('hex');
+
     
     try {
         await sql`
@@ -148,7 +150,8 @@ export async function modificarUsuario(prevState: UsuarioModificationState, form
     // Si hay una nueva contraseña, se encripta antes de guardar
     let contraseñaHasheada
     if (contraseña) {
-       contraseñaHasheada = crypto.hash('sha256',contraseña);
+    //    contraseñaHasheada = crypto.hash('sha256',contraseña);
+        contraseñaHasheada = crypto.createHash('sha256').update(contraseña).digest('hex');
     }
 
     try {

@@ -5,21 +5,39 @@ const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET) || '';
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get('authToken')?.value;
-
   if (!token) {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
   try {
-    const user = await jwtVerify(token, SECRET_KEY);
+    const pathname = new URL(req.url).pathname;
+    const { payload } = await jwtVerify(token, SECRET_KEY);
+    const userRole = (payload as { rol?: string }).rol;
 
-    if (req.url.startsWith('/home') && (user.payload.rol !== 'Administrador' || 'Alumno' || 'Padre' || 'Docente' || 'Directivo')) {
+    if (!userRole) {
       return NextResponse.redirect(new URL('/login', req.url));
     }
 
-    if (req.url.startsWith('/gestion-usuarios') && (user.payload.rol !== 'Administrador')) {
+    if (pathname.startsWith('/home') && !['Administrador', 'Alumno', 'Padre', 'Docente', 'Directivo'].includes(userRole)) {
+      return NextResponse.redirect(new URL('/login', req.url));
+    }
+
+    if (pathname.startsWith('/gestion-usuarios') && (userRole !== 'Administrador')) {
       return NextResponse.redirect(new URL('/home', req.url));
     }
+
+    if (pathname.startsWith('/gestion-materias') && (userRole !== 'Administrador')) {
+      return NextResponse.redirect(new URL('/home', req.url));
+    }
+
+    if (pathname.startsWith('/gestion-planes') && (userRole !== 'Administrador')) {
+      return NextResponse.redirect(new URL('/home', req.url));
+    }
+
+    if (pathname.startsWith('/gestion-aulas') && !['Administrador', 'Docente'].includes(userRole)) {
+      return NextResponse.redirect(new URL('/home', req.url));
+    }
+
 
     return NextResponse.next();
   } catch (err) {
@@ -29,5 +47,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/gestion-usuarios', '/home', '/dashboard/:path*'], // para rutas en especifico
+  matcher: [ '/home', '/gestion-usuarios/:path*', '/gestion-materias/:path*', '/gestion-planes/:path*', '/gestion-aulas/:path*'], // para rutas en especifico
 };
