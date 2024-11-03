@@ -41,8 +41,7 @@ export default function ListaDeAulas({ aulas }: ListaDeAulasProps) {
     
     return (
     <>
-        <div>Lista de Aulas</div>
-
+        <div className="text-2xl font-bold text-center text-dark-500">Lista de aulas</div>
         <div className="container mx-auto p-4">
             <div className="flex justify-between mb-4">
                 <Input

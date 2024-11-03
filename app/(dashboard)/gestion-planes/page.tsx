@@ -9,7 +9,7 @@ export default async function AdminDashboard() {
     
     return(
         <>
-            <div>Planes de Estudio</div>
+            <div className="text-2xl font-bold text-center text-blue-500">Planes de Estudio</div>
             <StudyPlanList planes={planes} />
         </>
     );

@@ -10,8 +10,7 @@ export default async function GestionAulas() {
     console.log(aulas);
     
     return<>
-        <div>Gestion de Aulas</div>
-        {/*<ClassRoomList aulas={aulas} />*/}
+        <div className="text-2xl font-bold text-center text-blue-500">Gestion de aulas</div>
         <ListaDeAulas aulas={aulas}/>
     </>
 }
