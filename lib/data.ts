@@ -227,14 +227,22 @@ export async function fetchAulaById(aulaId: string) {
                                                   WHERE
                                                       au.Aula_ID = ${aulaId} AND r.Nombre = 'Docente';`;
       
-      // if(resultProfesores.rows.length === 0){
-      //   aula.profesores = [];
-      // }
+      const resultAlumnos = await sql<Usuario>`SELECT
+                                                    u.DNI,
+                                                    u.Nombres,
+                                                    u.Apellido
+                                                FROM
+                                                    Usuarios u
+                                                JOIN
+                                                    Usuario_Rol ur ON u.DNI = ur.DNI
+                                                JOIN
+                                                    Roles r ON ur.Rol = r.ID
+                                                JOIN
+                                                    Aula_Usuario au ON u.DNI = au.DNI
+                                                WHERE
+                                                    au.Aula_ID = ${aulaId} AND r.Nombre = 'Alumno';`;
       aula.profesores = resultProfesores.rows;
-      aula.alumnos = [];
-      console.log(resultProfesores.rows);
-
-      console.log("aulaFetch", JSON.stringify(aula));
+      aula.alumnos = resultAlumnos.rows;
 
       return aula;
   } catch (error) {

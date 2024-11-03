@@ -99,3 +99,18 @@ export type AulaState = {
     };
     message?: string | null;
 };
+
+export type Examen = {
+    codigo: string;
+    fecha: string;
+    alumnos: {alumno: Usuario, nota: string}[];
+};
+
+export type ExamenState = {
+    errors?: {
+        codigo?: string[];
+        fecha?: string[];
+        alumnos?: string[];
+    };
+    message?: string | null;
+};

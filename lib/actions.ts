@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { Usuario, UsuarioState, AuthError, Materia, MateriaState, PlanEstudioState, PlanEstudio, Aula, AulaState, UsuarioModificationState } from './definitions';
+import { Usuario, UsuarioState, AuthError, Materia, MateriaState, PlanEstudioState, PlanEstudio, Aula, AulaState, UsuarioModificationState, Examen } from './definitions';
 import crypto from 'node:crypto';
 import { SignJWT } from 'jose';
 import { NextResponse } from 'next/server';
@@ -618,4 +618,13 @@ export async function borrarAula(aula: Aula) {
     }
     revalidatePath('/gestion-aulas');
     redirect('/gestion-aulas');
+}
+
+export async function crearExamen(prevState: MateriaState, formData: FormData){
+    console.log(formData);
+    return {message: "Examen creado"};
+}
+
+export async function borrarExamen(examen: Examen) {
+    
 }
