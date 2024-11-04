@@ -633,23 +633,24 @@ const SimplifiedUsuarioSchema = z.object({
     nombres: z.string().nonempty("Name is required"),
   });
 
-const CrearExamenFormSchema = z.object({
+  const CrearExamenFormSchema = z.object({
     titulo: z.string().min(1, { message: 'Poner un titulo al examen.' }),
     fecha: z.string().transform((dateString) => new Date(dateString)).refine(
         (date) => {
-            const minDate = new Date();
-            minDate.setDate(minDate.getDate() + minDays);
-            return date >= minDate;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set time to midnight for an accurate comparison
+            return date < today; // Check if the date is in the past
         },
-        { message: `La fecha debe tener al menos ${minDays} dias de anticipacion.` }
+        { message: 'La fecha debe ser una fecha pasada.' }
     ),
     alumnos: z.array(
         z.object({
-          alumno: SimplifiedUsuarioSchema,
-          nota: z.union([z.number().nonnegative(), z.literal('')]).optional(),
+            alumno: SimplifiedUsuarioSchema,
+            nota: z.union([z.number().nonnegative(), z.literal('')]).optional(),
         })
-      ).optional(),
+    ).optional(),
 });
+
 
 const ModificarExamenFormSchema = z.object({
     titulo: z.string({
