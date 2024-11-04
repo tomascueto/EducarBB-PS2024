@@ -305,7 +305,7 @@ export async function fetchExamenById(codigo: string) {
           WHERE e.Examen_ID = ${codigo}
       ;`;
 
-      const alumnos = await sql<{ alumno: Usuario; nota: string; }>` 
+/*       const alumnos = await sql<{ alumno: Usuario; nota: string; }>` 
     SELECT json_agg(
               json_build_object(
                   'dni', u.DNI,
@@ -319,10 +319,49 @@ export async function fetchExamenById(codigo: string) {
     WHERE ea.Examen_ID = ${codigo}
 ;`;
 
-      examen.rows[0].alumnos = alumnos.rows;
+      examen.rows[0].alumnos = alumnos.rows; */
       return examen.rows[0];
   } catch (error) {
       console.error('Database Error:', error);
       throw new Error('Failed to fetch examenes');
+  }
+}
+
+export async function fetchAlumnosFromExamId(codigo: string) {
+  noStore();
+  try {
+      const resultExamen = await sql<{
+          alumno: { dni: string; nombres: string; apellido: string, email: string, contraseña: string, fechanacimiento: string, rol: string };
+          nota: string;
+      }>`
+          SELECT 
+              json_build_object(
+                  'dni', u.DNI,
+                  'nombres', u.Nombres,
+                  'apellido', u.Apellido,
+                  'email', '',
+                  'contraseña', '',
+                  'fechaNacimiento', '',
+                  'rol', ''
+              ) AS alumno,
+              ea.nota
+          FROM Examen_Alumno ea
+          JOIN Usuarios u ON ea.DNI = u.DNI
+          WHERE ea.Examen_ID = ${codigo}
+      ;`;
+
+      // Access the rows from the result
+      const alumnos = resultExamen.rows;
+
+      // Log the alumnos to verify structure
+      console.log('Alumnos:', alumnos);
+
+      return alumnos;
+  } catch (error) {
+      console.error('Database Error:', error);
+      if (error instanceof Error) {
+          console.error('Error Message:', error.message);
+      }
+      throw new Error('Failed to fetch alumnos for the exam');
   }
 }

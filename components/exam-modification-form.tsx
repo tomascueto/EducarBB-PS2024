@@ -12,11 +12,10 @@ import { Card, CardContent } from "@/components/ui/card"
 
 interface ExamListProps {
   aulaId: string;
-  alumnos: Usuario[];
   existingExam: Examen;
 }
 
-export default function ModificationForm({ aulaId, alumnos, existingExam }: ExamListProps) {
+export default function ModificationForm({ aulaId, existingExam }: ExamListProps) {
   const [alumnosExamen, setAlumnosExamen] = useState<Array<{ alumno: Usuario; nota: string }>>(
     existingExam.alumnos.map(alumno => ({ alumno: alumno.alumno, nota: alumno.nota }))
   );

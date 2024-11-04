@@ -710,10 +710,10 @@ export async function crearExamen(prevState: ExamenState, formData: FormData, au
         `;
 
         if (alumnos && Array.isArray(alumnos)) {
-            for (const {alumno} of alumnos) {
+            for (const { alumno, nota } of alumnos) {
                 await sql`
-                INSERT INTO Examen_Alumno (Examen_ID, DNI)
-                SELECT ${examenId}, ${alumno.dni}
+                INSERT INTO Examen_Alumno (Examen_ID, DNI, nota)
+                SELECT ${examenId}, ${alumno.dni}, ${nota}
                 WHERE NOT EXISTS (
                     SELECT 1 FROM Examen_Alumno WHERE Examen_Id = ${examenId} AND DNI = ${alumno.dni}
                 );

@@ -70,9 +70,9 @@ export default function ExamsList({ aula, examenes }: SubjectListProps) {
               <TableCell>{examen.titulo}</TableCell>
               <TableCell>{examen.fecha}</TableCell>
               <TableCell className="text-right">
-{/*               <Link href={`/gestion-aulas/${aula.codigo}/examenes/${examen.codigo}/modificar`}>
+              <Link href={`/gestion-aulas/${aula.codigo}/examenes/${examen.codigo}`}>
                   <Button variant="outline" className="mr-2">Editar</Button>
-              </Link> */}
+              </Link>
               <Button variant="ghost" size="icon" onClick={() => setDeleteExam(examen)}>
                   <Trash2 className="h-4 w-4" />
               </Button>
