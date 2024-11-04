@@ -110,6 +110,12 @@ export function DashboardLayoutComponent({ children }: { children: React.ReactNo
                   </Link>
                 </nav>
                 }
+                {(userRole === 'Alumno') && <nav className="space-y-2 p-4">
+                  <Link href="/aulas-virtuales" className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-accent">
+                    <span>Aulas Virtuales</span>
+                  </Link>
+                </nav>
+                }
               </ScrollArea>
               <Button variant="ghost" className="m-4 flex items-center space-x-2" onClick={logout}>
                 <LogOut className="h-4 w-4" />

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Trash2 } from "lucide-react"
 import Link  from "next/link"
-// import { borrarExamen } from '@/lib/actions';
+import { borrarExamen } from '@/lib/actions';
 import { Aula, Examen } from '@/lib/definitions'
 import {
   Dialog,
@@ -16,8 +16,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { borrarExamen } from '@/lib/actions'
-
 
 interface SubjectListProps {
   aula: Aula,
@@ -35,10 +33,13 @@ export default function ExamsList({ aula, examenes }: SubjectListProps) {
   const [deleteExam, setDeleteExam] = useState<Examen | null>(null);
 
   const handleDelete = async () => {
+    
     if (deleteExam) {
-      await borrarExamen(deleteExam);
+      await borrarExamen(deleteExam.codigo, aula.codigo);
+      
       setDeleteExam(null);
     }
+    
   };
 
   return (
@@ -58,18 +59,20 @@ export default function ExamsList({ aula, examenes }: SubjectListProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Código</TableHead>
+            <TableHead>Titulo</TableHead>
             <TableHead>Fecha</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {examenes.map((examen) => (
-            <TableRow key={examen.codigo}>
-              <TableCell>{examen.codigo}</TableCell>
+            <TableRow key={examen.titulo}>
+              <TableCell>{examen.titulo}</TableCell>
               <TableCell>{examen.fecha}</TableCell>
               <TableCell className="text-right">
-
+{/*               <Link href={`/gestion-aulas/${aula.codigo}/examenes/${examen.codigo}/modificar`}>
+                  <Button variant="outline" className="mr-2">Editar</Button>
+              </Link> */}
               <Button variant="ghost" size="icon" onClick={() => setDeleteExam(examen)}>
                   <Trash2 className="h-4 w-4" />
               </Button>
@@ -81,7 +84,7 @@ export default function ExamsList({ aula, examenes }: SubjectListProps) {
                     <DialogDescription className='text-center'>
                       {deleteExam && (
                         <>
-                          <p>Código: {deleteExam.codigo}</p>
+                          <p>titulo: {deleteExam.titulo}</p>
                           <p>Fecha: {deleteExam.fecha}</p>
                         </>
                       )}

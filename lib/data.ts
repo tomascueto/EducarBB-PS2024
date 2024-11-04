@@ -2,6 +2,7 @@ import { sql } from '@vercel/postgres';
 
 import { 
   Aula,
+  Examen,
   Materia,
   PlanEstudio,
   Usuario
@@ -248,5 +249,80 @@ export async function fetchAulaById(aulaId: string) {
   } catch (error) {
       console.error('Database Error:', error)
       throw new Error('Failed to fetch aula')
+  }
+}
+
+export async function fetchAulasByStudent(dni: string) {
+  noStore();
+  try {
+      const aulas = await sql<Aula>`SELECT 
+                                      a.Aula_ID as codigo,
+                                      a.nombre,
+                                      m.nombre as materia,
+                                      a.turno,
+                                      a.año
+                                  FROM Aula a
+                                  JOIN Aula_Usuario au ON a.Aula_ID = au.Aula_ID
+                                  JOIN Materia m ON a.Codigo_Materia = m.Codigo 
+                                  WHERE au.DNI = ${dni}
+                                  ORDER BY a.año DESC;`;
+        return aulas.rows;
+  } catch (error) {
+      console.error('Database Error:', error)
+      throw new Error('Failed to fetch aulas')
+  }
+}
+
+
+export async function fetchExamenes(aulaId: string) {
+  noStore();
+  try {
+      const examenes = await sql<Examen>`
+          SELECT 
+              e.Examen_ID as codigo,
+              e.Nombre as titulo,
+              TO_CHAR(e.Fecha,'YYYY-MM-DD') as fecha
+          FROM Examen e
+          JOIN Examen_Aula ea ON e.Examen_ID = ea.Examen_ID
+          WHERE ea.Aula_ID = ${aulaId}
+      ;`;
+      return examenes.rows;
+  } catch (error) {
+      console.error('Database Error:', error);
+      throw new Error('Failed to fetch examenes');
+  }
+}
+
+export async function fetchExamenById(codigo: string) {
+  noStore();
+  try {
+      const examen = await sql<Examen>`
+          SELECT
+              e.Examen_ID as codigo,
+              e.Nombre as titulo,
+              TO_CHAR(e.Fecha,'YYYY-MM-DD') as fecha
+          FROM Examen e
+          WHERE e.Examen_ID = ${codigo}
+      ;`;
+
+      const alumnos = await sql<{ alumno: Usuario; nota: string; }>` 
+    SELECT json_agg(
+              json_build_object(
+                  'dni', u.DNI,
+                  'nombres', u.Nombres,
+                  'apellido', u.Apellido,
+                  'nota', ea.nota
+              )
+          ) as alumnos
+    FROM Examen_Alumno ea
+    JOIN Usuarios u ON ea.DNI = u.DNI
+    WHERE ea.Examen_ID = ${codigo}
+;`;
+
+      examen.rows[0].alumnos = alumnos.rows;
+      return examen.rows[0];
+  } catch (error) {
+      console.error('Database Error:', error);
+      throw new Error('Failed to fetch examenes');
   }
 }

@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { Usuario, UsuarioState, AuthError, Materia, MateriaState, PlanEstudioState, PlanEstudio, Aula, AulaState, UsuarioModificationState, Examen } from './definitions';
+import { Usuario, UsuarioState, AuthError, Materia, MateriaState, PlanEstudioState, PlanEstudio, Aula, AulaState, UsuarioModificationState, Examen, ExamenState } from './definitions';
 import crypto from 'node:crypto';
 import { SignJWT } from 'jose';
 import { NextResponse } from 'next/server';
@@ -61,6 +61,10 @@ const LoginSchema = z.object({
 });
 
 // USUARIOS
+const UsuarioSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
 export async function crearUsuario(prevState: UsuarioState, formData: FormData){
 
     console.log(formData);
@@ -256,7 +260,7 @@ export async function authenticate(prevState: string | undefined, formData: Form
                 dni: rol_result.rows[0].dni,
                 nombre: rol_result.rows[0].nombre,
             };
-            const sessionToken = generarJWT({ id: usuario.nombres, rol: rol.nombre });
+            const sessionToken = generarJWT({ id: usuario.nombres, rol: rol.nombre, dni: usuario.dni });
         
             
             const responseData = {
@@ -275,10 +279,11 @@ export async function authenticate(prevState: string | undefined, formData: Form
     }
 }
     
-function generarJWT(user: { id: string, rol: string }) {
+function generarJWT(user: { id: string, rol: string, dni: string }) {
     const payload = {
         id: user.id,
         rol: user.rol,
+        dni: user.dni,
     };
 
     if (!process.env.JWT_SECRET) {
@@ -620,11 +625,175 @@ export async function borrarAula(aula: Aula) {
     redirect('/gestion-aulas');
 }
 
-export async function crearExamen(prevState: MateriaState, formData: FormData){
-    console.log(formData);
-    return {message: "Examen creado"};
+// EXAMENES
+const minDays = 7;
+
+const SimplifiedUsuarioSchema = z.object({
+    dni: z.string().nonempty("DNI is required"),
+    nombres: z.string().nonempty("Name is required"),
+  });
+
+const CrearExamenFormSchema = z.object({
+    titulo: z.string().min(1, { message: 'Poner un titulo al examen.' }),
+    fecha: z.string().transform((dateString) => new Date(dateString)).refine(
+        (date) => {
+            const minDate = new Date();
+            minDate.setDate(minDate.getDate() + minDays);
+            return date >= minDate;
+        },
+        { message: `La fecha debe tener al menos ${minDays} dias de anticipacion.` }
+    ),
+    alumnos: z.array(
+        z.object({
+          alumno: SimplifiedUsuarioSchema,
+          nota: z.union([z.number().nonnegative(), z.literal('')]).optional(),
+        })
+      ).optional(),
+});
+
+const ModificarExamenFormSchema = z.object({
+    titulo: z.string({
+        invalid_type_error: 'Colocar un nombre para el examen.'
+    }).min(1,{message: 'Poner un titulo al examen.'}),
+    fecha: z.optional(z.string()),
+    alumnos: z.array(z.string()).optional(),
+});
+
+
+function formatDateToString(date:Date){
+    const y = date.getFullYear();
+    const m = String(date.getMonth()+1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
 }
 
-export async function borrarExamen(examen: Examen) {
-    
+export async function crearExamen(prevState: ExamenState, formData: FormData, aulaId: string){
+    console.log(formData);
+
+    const validatedFields = CrearExamenFormSchema.safeParse({
+        titulo: formData.get('titulo'),
+        fecha: formData.get('fecha'),
+        alumnos: formData.getAll('alumnos[]').map((value) => {
+            return JSON.parse(value as string); 
+        }),
+    });
+
+    console.log("validatedFields "+JSON.stringify(validatedFields));
+
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: 'Error al crear un examen. Error en los campos.',
+        };
+    }
+
+    const {
+        titulo,
+        fecha,
+        alumnos,
+    } = validatedFields.data;
+
+    const formattedFecha = formatDateToString(fecha);
+    try {
+        const result = await sql`
+        INSERT INTO Examen (Nombre, Fecha)
+        VALUES (${titulo}, ${formattedFecha})
+        RETURNING Examen_ID;
+        `;
+        
+        const examenId = result.rows[0].examen_id;
+
+        await sql`
+        INSERT INTO Examen_Aula (Examen_ID, Aula_ID)
+        VALUES (${examenId}, ${aulaId});
+        `;
+
+        if (alumnos && Array.isArray(alumnos)) {
+            for (const {alumno} of alumnos) {
+                await sql`
+                INSERT INTO Examen_Alumno (Examen_ID, DNI)
+                SELECT ${examenId}, ${alumno.dni}
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM Examen_Alumno WHERE Examen_Id = ${examenId} AND DNI = ${alumno.dni}
+                );
+                `;
+            }
+        }
+    } catch (error) {
+        console.error('Database Error:', error);
+        return {
+            message: 'Error en la base de datos: error al agregar el usuario al examen.',
+        };
+    }
+    revalidatePath(`/gestion-aulas/${aulaId}/examenes`);
+    redirect(`/gestion-aulas/${aulaId}/examenes`);
+
 }
+
+export async function borrarExamen(codigo: string, aulaId: string) {
+    try {
+        await sql`
+        DELETE FROM Examen WHERE Examen_ID = ${codigo};
+        `;
+    } catch (error) {
+        return {
+            message: 'Database Error: No se pudo borrar el examen',
+        };
+    }
+    revalidatePath(`/gestion-aulas/${aulaId}/examenes`);
+    redirect(`/gestion-aulas/${aulaId}/examenes`);
+}
+
+export async function actualizarExamen(prevState: ExamenState, formData: FormData, aulaId: string, examenId: string) {
+    console.log(formData);
+
+    const validatedFields = CrearExamenFormSchema.safeParse({
+        titulo: formData.get('titulo'),
+        fecha: formData.get('fecha'),
+        alumnos: formData.getAll('alumnos'),
+    });
+
+    console.log("validatedFields " + JSON.stringify(validatedFields));
+
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: 'Error al actualizar el examen. Error en los campos.',
+        };
+    }
+
+    const {
+        titulo,
+        fecha,
+        alumnos,
+    } = validatedFields.data;
+
+    const formattedFecha = formatDateToString(fecha);
+    try {
+        
+        await sql`
+        UPDATE Examen
+        SET Nombre = ${titulo}, Fecha = ${formattedFecha}
+        WHERE Examen_ID = ${examenId};
+        `;
+
+        if (alumnos && Array.isArray(alumnos)) {
+            for (const { alumno, nota } of alumnos) {
+                await sql`
+                INSERT INTO Examen_Alumno (Examen_ID, DNI, Nota)
+                VALUES (${examenId}, ${alumno.dni}, ${nota})
+                ON CONFLICT (Examen_ID, DNI) 
+                DO UPDATE SET Nota = ${nota};
+                `;
+            }
+        }
+    } catch (error) {
+        console.error('Database Error:', error);
+        return {
+            message: 'Error en la base de datos: error al actualizar el examen.',
+        };
+    }
+    revalidatePath(`/gestion-aulas/${aulaId}/examenes`);
+    redirect(`/gestion-aulas/${aulaId}/examenes`);
+}
+

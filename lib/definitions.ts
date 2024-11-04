@@ -102,13 +102,14 @@ export type AulaState = {
 
 export type Examen = {
     codigo: string;
+    titulo: string;
     fecha: string;
     alumnos: {alumno: Usuario, nota: string}[];
 };
 
 export type ExamenState = {
     errors?: {
-        codigo?: string[];
+        titulo?: string[];
         fecha?: string[];
         alumnos?: string[];
     };

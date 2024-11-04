@@ -5,19 +5,20 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useFormState } from 'react-dom';
-import { crearExamen } from '@/lib/actions';
-import { ExamenState, Usuario } from "@/lib/definitions"
-import { useState } from "react"
+import { actualizarExamen } from '@/lib/actions';
+import { Examen, ExamenState, Usuario } from "@/lib/definitions"
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 
 interface ExamListProps {
   aulaId: string;
   alumnos: Usuario[];
+  existingExam: Examen;
 }
 
-export default function RegistrationForm({ aulaId, alumnos }: ExamListProps) {
+export default function ModificationForm({ aulaId, alumnos, existingExam }: ExamListProps) {
   const [alumnosExamen, setAlumnosExamen] = useState<Array<{ alumno: Usuario; nota: string }>>(
-    alumnos.map(alumno => ({ alumno, nota: '' }))
+    existingExam.alumnos.map(alumno => ({ alumno: alumno.alumno, nota: alumno.nota }))
   );
 
   const initialState: ExamenState = { message: "", errors: {} };
@@ -28,22 +29,37 @@ export default function RegistrationForm({ aulaId, alumnos }: ExamListProps) {
     const fecha = formData.get('fecha');
 
     if (titulo) {
-        newFormData.append('titulo', titulo.toString());
+      newFormData.append('titulo', titulo.toString());
     }
 
     if (fecha) {
-        newFormData.append('fecha', fecha.toString());
+      newFormData.append('fecha', fecha.toString());
     }
 
     alumnosExamen.forEach(({ alumno, nota }) => {
-        if (alumno) {
-            const notaNumber = nota === '' ? undefined : Number(nota);
-            newFormData.append('alumnos[]', JSON.stringify({ alumno, nota: notaNumber }));
-        }
+      if (alumno) {
+        newFormData.append('alumnos[]', JSON.stringify({ alumno, nota }));
+      }
     });
 
-    return await crearExamen(state, newFormData, aulaId);
-}, initialState);
+    return await actualizarExamen(state, newFormData, aulaId, existingExam.codigo);
+  }, initialState);
+
+  useEffect(() => {
+    if (existingExam) {
+      const { titulo, fecha } = existingExam;
+      const tituloInput = document.getElementById('titulo') as HTMLInputElement;
+      const fechaInput = document.getElementById('fecha') as HTMLInputElement;
+
+      if (tituloInput) {
+        tituloInput.value = titulo;
+      }
+
+      if (fechaInput) {
+        fechaInput.value = fecha;
+      }
+    }
+  }, [existingExam]);
 
   return (
     <form action={formAction} className="space-y-6">
@@ -66,6 +82,7 @@ export default function RegistrationForm({ aulaId, alumnos }: ExamListProps) {
                 </p>
               ))}
           </div>
+
           <div>
             <Label htmlFor="fecha" className="block mb-2">Fecha</Label>
             <Input
@@ -86,6 +103,7 @@ export default function RegistrationForm({ aulaId, alumnos }: ExamListProps) {
           </div>
         </div>
       </div>
+
       <Card aria-describedby="alumnos-error">
         <CardContent className="p-4">
           {alumnosExamen.length > 0 ? (
@@ -98,8 +116,7 @@ export default function RegistrationForm({ aulaId, alumnos }: ExamListProps) {
                     <Input
                       id={`nota-${index}`}
                       placeholder="Ingresar nota"
-                      type="number"
-                      value={alumnoExamen.nota ?? ''}
+                      value={alumnoExamen.nota}
                       onChange={(e) => {
                         const updatedAlumnos = [...alumnosExamen];
                         updatedAlumnos[index].nota = e.target.value;
@@ -123,10 +140,12 @@ export default function RegistrationForm({ aulaId, alumnos }: ExamListProps) {
             </p>
           ))}
       </div>
+
       <div className="flex justify-between pt-4">
         <Link href={`/gestion-aulas/${aulaId}/examenes`} className="w-1/3">
           <Button type="button" variant="outline" className="w-1/3">Cancelar</Button>
         </Link>
+
         <Button type="submit" className="w-1/3">Guardar Exámen</Button>
       </div>
     </form>
