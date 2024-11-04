@@ -47,7 +47,7 @@ export default function ClassRoomList({ aulas }: ClassRoomListProps) {
       <div className="flex justify-between mb-4">
         <Input
           type="search"
-          placeholder="Buscar plan"
+          placeholder="Buscar aula"
           className="max-w-sm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
